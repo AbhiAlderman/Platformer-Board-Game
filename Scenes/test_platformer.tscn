@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dvav45rp0mrkw"]
+
+[ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="2_7kaf5"]
+
+[node name="level" type="Node2D"]
+
+[node name="Platformer_Player" parent="." instance=ExtResource("2_7kaf5")]
+position = Vector2(43, -58)
+
+[node name="Camera2D" type="Camera2D" parent="Platformer_Player"]
+zoom = Vector2(1.5, 1.5)
