@@ -2,16 +2,16 @@ extends CharacterBody2D
 
 #constants
 #movement
-const DEFAULT_GROUND_SPEED: float = 350
-const DEFAULT_AIR_SPEED: float = 350
+const DEFAULT_GROUND_SPEED: float = 300
+const DEFAULT_AIR_SPEED: float = 300
 #jumping
-const DEFAULT_JUMP_VELOCITY: float = -500.0
+const DEFAULT_JUMP_VELOCITY: float = -450.0
 const DEFAULT_RISE_GRAVITY: float = 1600
 const DEFAULT_FALL_GRAVITY: float = 2200
 const JUMP_HOLD_GRAVITY: float = 600
 const JUMP_BUFFER_TIME: float = 0.15
 const JUMP_HOLD_TIME: float = 0.2
-const COYOTE_TIME: float = 0.1
+const COYOTE_TIME: float = 0.08
 
 #variables
 var coyote_time_left: float = 0.0
@@ -23,13 +23,18 @@ var rise_gravity: float = DEFAULT_RISE_GRAVITY
 var ground_speed: float = DEFAULT_GROUND_SPEED
 var air_speed: float = DEFAULT_AIR_SPEED
 var jump_velocity: float = DEFAULT_JUMP_VELOCITY
+
 var player_state: states
 enum states {
 	GROUNDED,
 	AIRBORNE,
+	DYING,
+	WINNING,
 }
 
 @onready var sprite = $AnimatedSprite2D
+@onready var dying_timer = $Timers/Dying_Timer
+@onready var winning_timer = $Timers/Winning_Timer
 
 func _ready():
 	player_state = states.GROUNDED
@@ -41,11 +46,12 @@ func _process(_delta):
 	animate_player()
 
 func _physics_process(delta):
-	handle_gravity(delta)
-	handle_input_buffer(delta)
-	handle_jump()
-	handle_movement()
-	move_and_slide()
+	if player_state != states.DYING and player_state != states.WINNING:
+		handle_gravity(delta)
+		handle_input_buffer(delta)
+		handle_jump()
+		handle_movement()
+		move_and_slide()
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -69,8 +75,10 @@ func handle_gravity(delta) -> void:
 
 func handle_input_buffer(delta) -> void:
 	jump_buffer_time_left -= delta
-	if Input.is_action_just_pressed("ui_accept"):
+	if Input.is_action_just_pressed("jump"):
 		jump_buffer_time_left = JUMP_BUFFER_TIME
+	if Input.is_action_just_released("jump"):
+		jump_time = JUMP_HOLD_TIME
 
 func handle_jump() -> void:
 	if jump_buffer_time_left > 0:
@@ -87,6 +95,18 @@ func handle_movement() -> void:
 	else:
 		velocity.x = direction * air_speed
 
+func die() -> void:
+	#do death stuff here
+	if player_state != states.DYING:
+		player_state = states.DYING
+		dying_timer.start()
+	
+func reached_goal() -> void:
+	#do goal stuff here
+	if player_state != states.WINNING:
+		player_state = states.WINNING
+		winning_timer.start()
+		
 func handle_flip() -> void:
 	if velocity.x > 0:
 		sprite.flip_h = false
@@ -108,5 +128,20 @@ func animate_player() -> void:
 				sprite.play("jump_fall")
 			else:
 				sprite.play("jump_peak")
-	
+		states.DYING:
+			sprite.play("death")
+		states.WINNING:
+			sprite.play("winning")
 
+func _on_area_area_entered(area):
+	if area.is_in_group("killbox"):
+		die()
+	elif area.is_in_group("goal"):
+		reached_goal()
+
+func _on_dying_timer_timeout():
+	get_parent().player_died()
+
+
+func _on_winning_timer_timeout():
+	get_parent().player_won()
