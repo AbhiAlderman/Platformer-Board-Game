@@ -1,0 +1,56 @@
+[gd_scene load_steps=6 format=3 uid="uid://wmdqxiwvwmdq"]
+
+[ext_resource type="Texture2D" uid="uid://bf1d2ihrrm2hr" path="res://Assets/level/pixeljoint_challenge.png" id="1_bg5xr"]
+[ext_resource type="Script" path="res://Scripts/card.gd" id="1_xqqkw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_snhw3"]
+atlas = ExtResource("1_bg5xr")
+region = Rect2(0, 0, 100, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mp7y4"]
+atlas = ExtResource("1_bg5xr")
+region = Rect2(0, 0, 100, 186)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ybn3w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_snhw3")
+}],
+"loop": true,
+"name": &"default",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mp7y4")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": true,
+"name": &"selected",
+"speed": 3.0
+}]
+
+[node name="Card" type="Node2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_xqqkw")
+
+[node name="Button" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -49.0
+offset_top = -90.0
+offset_right = -41.0
+offset_bottom = -82.0
+scale = Vector2(12.3148, 22.8147)
+
+[node name="sprite" type="AnimatedSprite2D" parent="."]
+z_index = 4
+sprite_frames = SubResource("SpriteFrames_ybn3w")
+animation = &"selected"
+
+[connection signal="focus_entered" from="Button" to="." method="_on_button_focus_entered"]
+[connection signal="focus_exited" from="Button" to="." method="_on_button_focus_exited"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

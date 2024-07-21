@@ -5,5 +5,20 @@
 [node name="Main_Scene" type="Node2D"]
 script = ExtResource("1_8wvd0")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = -2
+offset_left = -1116.0
+offset_top = -609.0
+offset_right = -1076.0
+offset_bottom = -569.0
+scale = Vector2(57.3141, 35.5541)
+color = Color(0.1258, 0.15793, 0.34, 1)
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

@@ -2,14 +2,11 @@ extends Node2D
 
 signal on_player_death
 @onready var test = $Tilemaps/test
-@onready var timer = $Timer
+@onready var platformer_player = $Platformer_Player
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	remove_child(test)
-	timer.start()
-	
-
+	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -21,6 +18,9 @@ func player_died():
 func player_won():
 	get_parent().player_won()
 
+func disable_player_control():
+	platformer_player.disable_player_control()
 
-func _on_timer_timeout():
-	add_child(test)
+func enable_player_control():
+	platformer_player.enable_player_control()
+

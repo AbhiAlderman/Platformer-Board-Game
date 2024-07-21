@@ -223,7 +223,6 @@ script = ExtResource("1_l4e1b")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_s0uty")
 animation = &"winning"
-frame_progress = 0.217265
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false

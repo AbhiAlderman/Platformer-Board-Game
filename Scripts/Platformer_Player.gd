@@ -23,6 +23,7 @@ var rise_gravity: float = DEFAULT_RISE_GRAVITY
 var ground_speed: float = DEFAULT_GROUND_SPEED
 var air_speed: float = DEFAULT_AIR_SPEED
 var jump_velocity: float = DEFAULT_JUMP_VELOCITY
+var disabled: bool = true
 
 var player_state: states
 enum states {
@@ -46,7 +47,7 @@ func _process(_delta):
 	animate_player()
 
 func _physics_process(delta):
-	if player_state != states.DYING and player_state != states.WINNING:
+	if player_state != states.DYING and player_state != states.WINNING and not disabled:
 		handle_gravity(delta)
 		handle_input_buffer(delta)
 		handle_jump()
@@ -106,7 +107,13 @@ func reached_goal() -> void:
 	if player_state != states.WINNING:
 		player_state = states.WINNING
 		winning_timer.start()
-		
+
+func disable_player_control() -> void:
+	disabled = true
+
+func enable_player_control() -> void:
+	disabled = false
+
 func handle_flip() -> void:
 	if velocity.x > 0:
 		sprite.flip_h = false
