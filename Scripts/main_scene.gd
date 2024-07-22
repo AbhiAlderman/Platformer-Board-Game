@@ -14,36 +14,48 @@ var cards: Array = []
 var card_count: int
 var player_effects: Array = []
 var level_effects: Array = []
+var time_limit: int
 var game_state: states 
 enum states {
 	MAP, #the worldmap the player is moving through to progress
 	PLATFORMER, #the actual platformer game
 	CARDS, #zoomed out view to choose cards
-	ENEMY #looking at enemy face
+	ENEMY, #looking at enemy face
+	GAMEOVER #game over
 }
 
 @onready var camera = $Camera
+@onready var progress_timer = $Progress/Progress_Timer
+@onready var progress_sprite = $Progress/ProgressSprite
+@onready var time_left_label = $Level_Time/Time_Left
+@onready var current_runtime_timer = $Level_Time/Current_Runtime
+@onready var win_animation_timer = $Level_Time/Win_Animation_Timer
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	current_level_number = 1
-	load_level()
-	load_cards()
-	change_gamestate(states.PLATFORMER)
+	change_gamestate(states.MAP)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	match game_state:
 		states.MAP:
 			#print("map state")
-			pass
+			progress_sprite.play("visible")
+			time_left_label.text = ""
 		states.PLATFORMER:
 			#print("platformer state")
-			pass
+			progress_sprite.play("invisible")
+			time_left_label.text = str(floor(current_runtime_timer.time_left))
 		states.CARDS:
 			#print("cards state")
+			progress_sprite.play("invisible")
+			time_left_label.text = ""
 			pass
 		states.ENEMY:
 			#print("enemy state")
+			progress_sprite.play("invisible")
+			time_left_label.text = ""
 			pass
 		_:
 			print("invalid game state")
@@ -53,16 +65,21 @@ func load_level():
 	match current_level_number:
 		1:
 			current_level_node = level_one.instantiate()
+			time_limit = 30
 		2:
 			current_level_node = level_two.instantiate()
+			time_limit = 20
 		3:
 			current_level_node = level_three.instantiate()
+			time_limit = 40
 		_:
 			print("made it to some other level")
 			return
 	add_child(current_level_node)
 	current_level_node.position.x = 0
 	current_level_node.position.y = 0
+	current_level_node.enable_double_jump()
+	current_level_node.enable_wall_jump()
 
 func load_cards():
 	var previous_card
@@ -84,10 +101,19 @@ func load_cards():
 	
 func player_died():
 	#change the level
-	current_level_node.queue_free()
+	if card_count <= 0:
+		current_level_node.queue_free()
+		change_gamestate(states.GAMEOVER)
+	else:
+		player_won()
 
 func player_won():
 	#change the level
+	current_runtime_timer.paused = true
+	win_animation_timer.start()
+	await get_tree().create_timer(2).timeout
+	current_runtime_timer.paused = false
+	current_runtime_timer.stop()
 	current_level_node.queue_free()
 	#current_level_number += 1
 	load_level()
@@ -96,9 +122,10 @@ func player_won():
 	else:
 		current_level_number += 1
 		current_level_node.queue_free()
-		load_level()
-		load_cards()
-		change_gamestate(states.CARDS)
+		change_gamestate(states.MAP)
+
+func kill_player():
+	current_level_node.kill_player()
 
 func disable_player_control():
 	current_level_node.disable_player_control()
@@ -143,14 +170,12 @@ func change_gamestate(state: states):
 		states.MAP:
 			tween.tween_property(camera, "zoom", Vector2(1, 1), 0.6)
 			game_state = states.MAP
-			disable_player_control()
-			for c in cards:
-				if c != null:
-					c.disable_card()
+			progress_timer.start()
 		states.PLATFORMER:
 			tween.tween_property(camera, "zoom", Vector2(1.2, 1.2), 0.6)
 			game_state = states.PLATFORMER
 			enable_player_control()
+			current_runtime_timer.start(time_limit)
 			for c in cards:
 				if c != null:
 					c.disable_card()
@@ -171,6 +196,19 @@ func change_gamestate(state: states):
 			for c in cards:
 				if c != null:
 					c.disable_card()
+		states.GAMEOVER:
+			game_state = states.GAMEOVER
+			print("game over")
 		_:
 			print("invalid game state")
 			return
+
+
+func _on_progress_timer_timeout():
+	load_level()
+	load_cards()
+	change_gamestate(states.PLATFORMER)
+
+
+func _on_current_runtime_timeout():
+	kill_player()

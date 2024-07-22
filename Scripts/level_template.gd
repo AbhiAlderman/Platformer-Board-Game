@@ -18,9 +18,21 @@ func player_died():
 func player_won():
 	get_parent().player_won()
 
+func kill_player():
+	platformer_player.die()
+
 func disable_player_control():
 	platformer_player.disable_player_control()
 
 func enable_player_control():
 	platformer_player.enable_player_control()
+	
+func enable_double_jump():
+	platformer_player.enable_double_jump()
+
+func enable_wall_jump():
+	platformer_player.enable_wall_jump()
+	
+func enable_glide():
+	platformer_player.enabled_glide()
 

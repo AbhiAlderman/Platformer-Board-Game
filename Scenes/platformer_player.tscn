@@ -1,10 +1,11 @@
-[gd_scene load_steps=33 format=3 uid="uid://yhfgqx38dv8u"]
+[gd_scene load_steps=35 format=3 uid="uid://yhfgqx38dv8u"]
 
 [ext_resource type="Script" path="res://Scripts/Platformer_Player.gd" id="1_l4e1b"]
 [ext_resource type="Texture2D" uid="uid://cjuteog4wmwq1" path="res://Assets/Prototype Character/Player Idle/Player Idle 48x48.png" id="2_6uvur"]
 [ext_resource type="Texture2D" uid="uid://o0dq4gwybi3b" path="res://Assets/Prototype Character/Player Land/player land 48x48.png" id="2_dhpm3"]
 [ext_resource type="Texture2D" uid="uid://bpha1k41041t7" path="res://Assets/Prototype Character/Player Jump/player jump 48x48.png" id="3_ffurh"]
 [ext_resource type="Texture2D" uid="uid://bcmpkf4g3ikx2" path="res://Assets/Prototype Character/Player Run/player run 48x48.png" id="4_mgdlu"]
+[ext_resource type="Texture2D" uid="uid://sym3a8t6rhds" path="res://Assets/Prototype Character/Player Wall Land/player wall land 48x48.png" id="6_3vkve"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cgq5v"]
 atlas = ExtResource("2_dhpm3")
@@ -93,6 +94,10 @@ region = Rect2(288, 0, 48, 48)
 [sub_resource type="AtlasTexture" id="AtlasTexture_7we4l"]
 atlas = ExtResource("4_mgdlu")
 region = Rect2(336, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bne47"]
+atlas = ExtResource("6_3vkve")
+region = Rect2(0, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5fug7"]
 atlas = ExtResource("2_dhpm3")
@@ -202,6 +207,14 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_bne47")
+}],
+"loop": true,
+"name": &"wall_slide",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_5fug7")
 }, {
 "duration": 1.0,
@@ -222,7 +235,7 @@ script = ExtResource("1_l4e1b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_s0uty")
-animation = &"winning"
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
@@ -234,6 +247,7 @@ collision_layer = 2
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area"]
+scale = Vector2(0.800001, 1)
 shape = SubResource("CapsuleShape2D_0af46")
 
 [node name="Timers" type="Node" parent="."]
@@ -241,9 +255,27 @@ shape = SubResource("CapsuleShape2D_0af46")
 [node name="Dying_Timer" type="Timer" parent="Timers"]
 one_shot = true
 
-[node name="Winning_Timer" type="Timer" parent="Timers"]
+[node name="Wall_Jump_Timer" type="Timer" parent="Timers"]
 one_shot = true
+
+[node name="Ignore_Input_Timer" type="Timer" parent="Timers"]
+one_shot = true
+
+[node name="Rays" type="Node" parent="."]
+
+[node name="leftray" type="RayCast2D" parent="Rays"]
+position = Vector2(-4, 0)
+target_position = Vector2(-9, 0)
+collision_mask = 3
+hit_from_inside = true
+
+[node name="rightray" type="RayCast2D" parent="Rays"]
+position = Vector2(3, 0)
+target_position = Vector2(11, 0)
+collision_mask = 3
+hit_from_inside = true
 
 [connection signal="area_entered" from="Area" to="." method="_on_area_area_entered"]
 [connection signal="timeout" from="Timers/Dying_Timer" to="." method="_on_dying_timer_timeout"]
-[connection signal="timeout" from="Timers/Winning_Timer" to="." method="_on_winning_timer_timeout"]
+[connection signal="timeout" from="Timers/Wall_Jump_Timer" to="." method="_on_wall_jump_timer_timeout"]
+[connection signal="timeout" from="Timers/Ignore_Input_Timer" to="." method="_on_ignore_input_timer_timeout"]
