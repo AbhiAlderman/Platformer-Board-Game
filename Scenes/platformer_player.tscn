@@ -226,8 +226,10 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ykrau"]
+radius = 5.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0af46"]
+radius = 6.24999
 
 [node name="Platformer_Player" type="CharacterBody2D"]
 z_index = 2
@@ -235,10 +237,9 @@ script = ExtResource("1_l4e1b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_s0uty")
-animation = &"idle"
+animation = &"wall_slide"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(0, 1)
 shape = SubResource("CapsuleShape2D_ykrau")
 
@@ -256,26 +257,21 @@ shape = SubResource("CapsuleShape2D_0af46")
 one_shot = true
 
 [node name="Wall_Jump_Timer" type="Timer" parent="Timers"]
+wait_time = 0.3
 one_shot = true
 
-[node name="Ignore_Input_Timer" type="Timer" parent="Timers"]
-one_shot = true
-
-[node name="Rays" type="Node" parent="."]
-
-[node name="leftray" type="RayCast2D" parent="Rays"]
+[node name="leftray" type="RayCast2D" parent="."]
 position = Vector2(-4, 0)
-target_position = Vector2(-9, 0)
+target_position = Vector2(-22, 0)
 collision_mask = 3
 hit_from_inside = true
 
-[node name="rightray" type="RayCast2D" parent="Rays"]
+[node name="rightray" type="RayCast2D" parent="."]
 position = Vector2(3, 0)
-target_position = Vector2(11, 0)
+target_position = Vector2(24, 0)
 collision_mask = 3
 hit_from_inside = true
 
 [connection signal="area_entered" from="Area" to="." method="_on_area_area_entered"]
 [connection signal="timeout" from="Timers/Dying_Timer" to="." method="_on_dying_timer_timeout"]
 [connection signal="timeout" from="Timers/Wall_Jump_Timer" to="." method="_on_wall_jump_timer_timeout"]
-[connection signal="timeout" from="Timers/Ignore_Input_Timer" to="." method="_on_ignore_input_timer_timeout"]

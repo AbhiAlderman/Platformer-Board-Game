@@ -2,8 +2,8 @@ extends CharacterBody2D
 
 #constants
 #movement
-const DEFAULT_GROUND_SPEED: float = 270
-const DEFAULT_AIR_SPEED: float = 270
+const DEFAULT_GROUND_SPEED: float = 250
+const DEFAULT_AIR_SPEED: float = 250
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
@@ -14,8 +14,8 @@ const JUMP_HOLD_GRAVITY: float = 600
 const JUMP_BUFFER_TIME: float = 0.15
 const JUMP_HOLD_TIME: float = 0.2
 const COYOTE_TIME: float = 0.08
-const WALL_SLIDE_SPEED: float = 15
-const DEFAULT_WALL_JUMP_VELOCITY = Vector2(DEFAULT_AIR_SPEED, -370)
+const WALL_SLIDE_SPEED: float = 100
+const DEFAULT_WALL_JUMP_VELOCITY = Vector2(DEFAULT_AIR_SPEED, -350)
 #variables
 var coyote_time_left: float = 0.0
 var jump_buffer_time_left: float = 0.0
@@ -40,6 +40,7 @@ var current_wall_direction: String = ""
 var last_wall_direction: String = ""
 var wall_jump_velocity: Vector2 = DEFAULT_WALL_JUMP_VELOCITY
 var player_state: states
+var wall_speed: float
 enum states {
 	GROUNDED,
 	AIRBORNE,
@@ -50,8 +51,8 @@ enum states {
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var dying_timer: Timer = $Timers/Dying_Timer
-@onready var leftray: RayCast2D = $Rays/leftray
-@onready var rightray: RayCast2D = $Rays/rightray
+@onready var leftray: RayCast2D = $leftray
+@onready var rightray: RayCast2D = $rightray
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
 
 func _ready():
@@ -78,15 +79,13 @@ func get_gravity() -> float:
 func handle_gravity(delta) -> void:
 	if not is_on_floor():
 		coyote_time_left -= delta
-		if is_on_wall() and enabled_wall_jump:
+		if is_on_wall() and enabled_wall_jump and velocity.y >= 0:
 			current_wall_direction = wall_direction()
-			print(current_wall_direction)
 			if (current_wall_direction == "left" and Input.is_action_pressed("left") or 
 				current_wall_direction == "right" and Input.is_action_pressed("right")):
-				print("got here")
-				velocity.y = WALL_SLIDE_SPEED
 				is_wall_sliding = true
 				flipping = false
+				velocity.y = WALL_SLIDE_SPEED
 				player_state = states.WALL_SLIDE
 			else:
 				velocity.y += get_gravity() * delta
@@ -207,7 +206,6 @@ func animate_player() -> void:
 			else:
 				sprite.play("jump_peak")
 		states.WALL_SLIDE:
-			print("wall sliding")
 			sprite.play("wall_slide")
 			match wall_direction():
 				"left":
@@ -228,11 +226,6 @@ func _on_area_area_entered(area):
 func _on_dying_timer_timeout():
 	get_parent().player_died()
 
-
-func _on_current_time_timeout():
-	pass # Replace with function body.
-
-
 func _on_wall_jump_timer_timeout():
-	pass # Replace with function body.
+	wall_jumping = false
 

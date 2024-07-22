@@ -97,6 +97,7 @@ func load_cards():
 			card.get_child(0).grab_focus()
 		cards.append(card)
 		previous_card = card
+		card.set_effect("default effect")
 	card_count = 5
 	
 func player_died():
@@ -134,6 +135,9 @@ func enable_player_control():
 	current_level_node.enable_player_control()
 	
 func card_selected(card):
+	tween = create_tween()
+	tween.tween_property(card, "position", Vector2(0, 0), 0.6)
+	await get_tree().create_timer(2).timeout
 	if card.next_card != null:
 		var prev_card = card.prev_card
 		card.next_card.prev_card = prev_card
@@ -148,6 +152,7 @@ func card_selected(card):
 			card.prev_card.get_child(0).focus_neighbor_right = next_card.get_child(0).get_path()
 		else:
 			card.prev_card.get_child(0).focus_neighbor_right = ""
+	handle_effect(card.get_effect())
 	card.queue_free()
 	match card.position.x:
 		-500:
@@ -163,6 +168,9 @@ func card_selected(card):
 	card_count -= 1
 	change_gamestate(states.PLATFORMER)
 	
+func handle_effect(effect: String):
+	#handle the card effect here
+	print(effect)
 
 func change_gamestate(state: states):
 	tween = create_tween()

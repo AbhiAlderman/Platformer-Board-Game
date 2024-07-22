@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://wmdqxiwvwmdq"]
+[gd_scene load_steps=7 format=3 uid="uid://wmdqxiwvwmdq"]
 
 [ext_resource type="Texture2D" uid="uid://bf1d2ihrrm2hr" path="res://Assets/level/pixeljoint_challenge.png" id="1_bg5xr"]
 [ext_resource type="Script" path="res://Scripts/card.gd" id="1_xqqkw"]
@@ -8,6 +8,10 @@ atlas = ExtResource("1_bg5xr")
 region = Rect2(0, 0, 100, 186)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mp7y4"]
+atlas = ExtResource("1_bg5xr")
+region = Rect2(0, 0, 100, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1c0iu"]
 atlas = ExtResource("1_bg5xr")
 region = Rect2(0, 0, 100, 186)
 
@@ -29,8 +33,16 @@ animations = [{
 "texture": null
 }],
 "loop": true,
-"name": &"selected",
+"name": &"focused",
 "speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1c0iu")
+}],
+"loop": true,
+"name": &"selected",
+"speed": 5.0
 }]
 
 [node name="Card" type="Node2D"]
