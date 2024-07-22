@@ -24,7 +24,6 @@ var ground_speed: float = DEFAULT_GROUND_SPEED
 var air_speed: float = DEFAULT_AIR_SPEED
 var jump_velocity: float = DEFAULT_JUMP_VELOCITY
 var disabled: bool = true
-
 var player_state: states
 enum states {
 	GROUNDED,
@@ -38,11 +37,10 @@ enum states {
 @onready var winning_timer = $Timers/Winning_Timer
 
 func _ready():
-	player_state = states.GROUNDED
+	player_state = states.AIRBORNE
 	coyote_time_left = COYOTE_TIME
 	jump_buffer_time_left = JUMP_BUFFER_TIME
-
-
+	
 func _process(_delta):
 	animate_player()
 

@@ -32,7 +32,7 @@ func enable_card():
 	button.disabled = false
 	
 func _on_button_focus_entered():
-	print("got focus at " + str(position))
+	
 	has_focus = true
 
 func _on_button_focus_exited():

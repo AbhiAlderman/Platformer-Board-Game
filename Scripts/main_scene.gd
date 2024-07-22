@@ -2,6 +2,9 @@ extends Node2D
 
 
 var level_template = preload("res://Scenes/level_template.tscn")
+var level_one = preload("res://Scenes/level_one.tscn")
+var level_two = preload("res://Scenes/level_two.tscn")
+var level_three = preload("res://Scenes/level_three.tscn")
 var card_scene = preload("res://Scenes/card.tscn")
 var current_level_number: int
 var current_level_node
@@ -9,6 +12,8 @@ var tween: Tween
 var card_positions: Array = [Vector2(-500, 525), Vector2(-250, 525), Vector2(0, 525), Vector2(250, 525), Vector2(500, 525)]
 var cards: Array = []
 var card_count: int
+var player_effects: Array = []
+var level_effects: Array = []
 var game_state: states 
 enum states {
 	MAP, #the worldmap the player is moving through to progress
@@ -21,7 +26,7 @@ enum states {
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	current_level_number = 0
+	current_level_number = 1
 	load_level()
 	load_cards()
 	change_gamestate(states.PLATFORMER)
@@ -46,8 +51,12 @@ func _process(_delta):
 
 func load_level():
 	match current_level_number:
-		0:
-			current_level_node = level_template.instantiate()
+		1:
+			current_level_node = level_one.instantiate()
+		2:
+			current_level_node = level_two.instantiate()
+		3:
+			current_level_node = level_three.instantiate()
 		_:
 			print("made it to some other level")
 			return
@@ -75,7 +84,7 @@ func load_cards():
 	
 func player_died():
 	#change the level
-	level_template.queue_free()
+	current_level_node.queue_free()
 
 func player_won():
 	#change the level
@@ -85,8 +94,11 @@ func player_won():
 	if card_count > 0:
 		change_gamestate(states.CARDS)
 	else:
-		print("you won!")
-		change_gamestate(states.MAP)
+		current_level_number += 1
+		current_level_node.queue_free()
+		load_level()
+		load_cards()
+		change_gamestate(states.CARDS)
 
 func disable_player_control():
 	current_level_node.disable_player_control()
