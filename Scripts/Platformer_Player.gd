@@ -4,10 +4,13 @@ extends CharacterBody2D
 #movement
 const DEFAULT_GROUND_SPEED: float = 250
 const DEFAULT_AIR_SPEED: float = 250
+const BOOSTED_GROUND_SPEED: float = 330
+const BOOSTED_AIR_SPEED: float = 330
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
 const DEFAULT_JUMP_VELOCITY: float = -450.0
+const BOOSTED_JUMP_VELOCITY: float = -550.0
 const DEFAULT_RISE_GRAVITY: float = 1600
 const DEFAULT_FALL_GRAVITY: float = 2200
 const JUMP_HOLD_GRAVITY: float = 600
@@ -15,7 +18,9 @@ const JUMP_BUFFER_TIME: float = 0.15
 const JUMP_HOLD_TIME: float = 0.2
 const COYOTE_TIME: float = 0.08
 const WALL_SLIDE_SPEED: float = 100
-const DEFAULT_WALL_JUMP_VELOCITY = Vector2(DEFAULT_AIR_SPEED, -350)
+const DEFAULT_WALL_JUMP_VELOCITY: float = -350
+const BOOSTED_WALL_JUMP_VELOCITY: float = -450
+const GLIDE_VELOCITY: float = 150
 #variables
 var coyote_time_left: float = 0.0
 var jump_buffer_time_left: float = 0.0
@@ -31,6 +36,7 @@ var disabled: bool = true
 var enabled_double_jump: bool = false
 var enabled_wall_jump: bool = false
 var enabled_glide: bool = false
+var enabled_traps: bool = false
 #vars for buffs
 var can_double_jump: bool = true
 var is_wall_sliding: bool = false
@@ -38,7 +44,8 @@ var wall_jumping: bool = false
 var flipping: bool = false
 var current_wall_direction: String = ""
 var last_wall_direction: String = ""
-var wall_jump_velocity: Vector2 = DEFAULT_WALL_JUMP_VELOCITY
+var wall_jump_velocity: float = DEFAULT_WALL_JUMP_VELOCITY
+var player_spawn_point: Vector2
 var player_state: states
 var wall_speed: float
 enum states {
@@ -59,6 +66,7 @@ func _ready():
 	player_state = states.AIRBORNE
 	coyote_time_left = COYOTE_TIME
 	jump_buffer_time_left = JUMP_BUFFER_TIME
+	player_spawn_point = position
 	
 func _process(_delta):
 	animate_player()
@@ -95,6 +103,8 @@ func handle_gravity(delta) -> void:
 		if Input.is_action_pressed("jump") and jump_time < JUMP_HOLD_TIME and velocity.y < 0:
 			jump_time += delta
 			velocity.y += JUMP_HOLD_GRAVITY * delta
+		elif Input.is_action_pressed("jump") and enabled_glide and velocity.y >= 0:
+			velocity.y = GLIDE_VELOCITY
 		else:
 			velocity.y += get_gravity() * delta
 		is_wall_sliding = false
@@ -129,7 +139,7 @@ func handle_jump() -> void:
 		if player_state == states.GROUNDED or coyote_time_left > 0:
 			velocity.y = jump_velocity
 		elif is_wall_sliding and enabled_wall_jump:
-			velocity.y = wall_jump_velocity.y
+			velocity.y = wall_jump_velocity
 			wall_jumping = true
 			wall_jump_timer.start()
 			last_wall_direction = wall_direction()
@@ -143,9 +153,9 @@ func handle_movement() -> void:
 	direction = Input.get_axis("left", "right")
 	if wall_jumping and enabled_wall_jump:
 		if last_wall_direction == "left":
-			velocity.x = wall_jump_velocity.x
+			velocity.x = air_speed
 		else:
-			velocity.x = -wall_jump_velocity.x
+			velocity.x = -air_speed
 	elif direction:
 		if player_state == states.GROUNDED:
 			velocity.x = direction * ground_speed
@@ -156,6 +166,15 @@ func handle_movement() -> void:
 			velocity.x = move_toward(velocity.x, 0, GROUND_DECELERATION)
 		else:
 			velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION)
+
+func respawn() -> void:
+	wall_jumping = false
+	flipping = false
+	is_wall_sliding = false
+	#replace this logic with spawning a "explosion" sprite at player pos so
+	#player can instantly respawn
+	player_state = states.AIRBORNE
+	position = player_spawn_point
 
 func die() -> void:
 	#do death stuff here
@@ -183,6 +202,17 @@ func enable_wall_jump() -> void:
 
 func enable_glide() -> void:
 	enabled_glide = true
+
+func enable_traps() -> void:
+	enabled_traps = true
+	
+func enable_speed_boost() -> void:
+	ground_speed = BOOSTED_GROUND_SPEED
+	air_speed = BOOSTED_AIR_SPEED
+
+func enable_jump_boost() -> void:
+	jump_velocity = BOOSTED_JUMP_VELOCITY
+	wall_jump_velocity = BOOSTED_WALL_JUMP_VELOCITY
 
 func handle_flip() -> void:
 	if velocity.x > 0:
@@ -219,7 +249,9 @@ func animate_player() -> void:
 
 func _on_area_area_entered(area):
 	if area.is_in_group("killbox"):
-		die()
+		respawn()
+	elif area.is_in_group("trap") and enabled_traps:
+		respawn()
 	elif area.is_in_group("goal"):
 		reached_goal()
 

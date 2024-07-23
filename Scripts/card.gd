@@ -19,15 +19,15 @@ func _process(_delta):
 	if selected:
 		scale.x = 2.5
 		scale.y = 2.5
-		sprite.play("selected")
+		sprite.play("selected_" + effect_name)
 	elif has_focus:
 		scale.x = 2.5
 		scale.y = 2.5
-		sprite.play("focused")
+		sprite.play("focused_" + effect_name)
 	else:
 		scale.x = 2
 		scale.y = 2
-		sprite.play("default")
+		sprite.play("default_" + effect_name)
 
 func disable_card() -> void:
 	button.focus_mode = 0

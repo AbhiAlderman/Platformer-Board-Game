@@ -9,12 +9,14 @@ var card_scene = preload("res://Scenes/card.tscn")
 var current_level_number: int
 var current_level_node
 var tween: Tween
-var card_positions: Array = [Vector2(-500, 525), Vector2(-250, 525), Vector2(0, 525), Vector2(250, 525), Vector2(500, 525)]
+var card_positions: Array = [Vector2(-500, 1050), Vector2(-250, 1050), Vector2(0, 1050), Vector2(250, 1050), Vector2(500, 1050)]
 var cards: Array = []
 var card_count: int
-var player_effects: Array = []
-var level_effects: Array = []
-var time_limit: int
+var possible_buffs: Array = ["more_time", "double_jump", "wall_jump", "glide", "jump_boost", "speed"]
+var possible_debuffs: Array = ["less_time", "traps", "flip_gravity"]
+var effects: Array = []
+var default_time_limit: int
+var current_time_limit: int
 var game_state: states 
 enum states {
 	MAP, #the worldmap the player is moving through to progress
@@ -40,49 +42,42 @@ func _ready():
 func _process(_delta):
 	match game_state:
 		states.MAP:
-			#print("map state")
 			progress_sprite.play("visible")
 			time_left_label.text = ""
 		states.PLATFORMER:
-			#print("platformer state")
 			progress_sprite.play("invisible")
 			time_left_label.text = str(floor(current_runtime_timer.time_left))
 		states.CARDS:
-			#print("cards state")
 			progress_sprite.play("invisible")
 			time_left_label.text = ""
-			pass
 		states.ENEMY:
-			#print("enemy state")
 			progress_sprite.play("invisible")
 			time_left_label.text = ""
-			pass
 		_:
 			print("invalid game state")
-			return
 
 func load_level():
 	match current_level_number:
 		1:
 			current_level_node = level_one.instantiate()
-			time_limit = 30
+			default_time_limit = 30
 		2:
 			current_level_node = level_two.instantiate()
-			time_limit = 20
+			default_time_limit = 20
 		3:
 			current_level_node = level_three.instantiate()
-			time_limit = 40
+			default_time_limit = 40
 		_:
 			print("made it to some other level")
 			return
 	add_child(current_level_node)
 	current_level_node.position.x = 0
 	current_level_node.position.y = 0
-	current_level_node.enable_double_jump()
-	current_level_node.enable_wall_jump()
 
 func load_cards():
 	var previous_card
+	var temp_effects: Array = possible_buffs.duplicate()
+	temp_effects.shuffle()
 	for i in card_positions:
 		var card = card_scene.instantiate()
 		add_child(card)
@@ -97,7 +92,8 @@ func load_cards():
 			card.get_child(0).grab_focus()
 		cards.append(card)
 		previous_card = card
-		card.set_effect("default effect")
+		card.set_effect(temp_effects.pop_front())
+		
 	card_count = 5
 	
 func player_died():
@@ -152,7 +148,8 @@ func card_selected(card):
 			card.prev_card.get_child(0).focus_neighbor_right = next_card.get_child(0).get_path()
 		else:
 			card.prev_card.get_child(0).focus_neighbor_right = ""
-	handle_effect(card.get_effect())
+	effects.append(card.get_effect())
+	print(card.get_effect())
 	card.queue_free()
 	match card.position.x:
 		-500:
@@ -168,29 +165,57 @@ func card_selected(card):
 	card_count -= 1
 	change_gamestate(states.PLATFORMER)
 	
-func handle_effect(effect: String):
+func handle_effects():
 	#handle the card effect here
-	print(effect)
+	for i in range(effects.size()):
+		match effects[i]:
+			"double_jump":
+				current_level_node.enable_double_jump()
+			"wall_jump":
+				current_level_node.enable_wall_jump()
+			"glide":
+				current_level_node.enable_glide()
+			"speed":
+				current_level_node.enable_speed_boost()
+			"jump_boost":
+				current_level_node.enable_jump_boost()
+			"traps":
+				current_level_node.enable_traps()
+			"more_time":
+				current_time_limit += 10
+			"less_time":
+				current_time_limit -= 10
+			_:
+				print("invalid effect")
 
 func change_gamestate(state: states):
 	tween = create_tween()
 	match state:
 		states.MAP:
-			tween.tween_property(camera, "zoom", Vector2(1, 1), 0.6)
 			game_state = states.MAP
+			effects = []
+			tween.tween_property(camera, "position", Vector2(0, 0), 0.2)
+			tween.tween_property(camera, "zoom", Vector2(1, 1), 0.2)
+			await get_tree().create_timer(0.5).timeout
 			progress_timer.start()
 		states.PLATFORMER:
-			tween.tween_property(camera, "zoom", Vector2(1.2, 1.2), 0.6)
 			game_state = states.PLATFORMER
+			tween.tween_property(camera, "position", Vector2(0, 0), 0.2)
+			tween.tween_property(camera, "zoom", Vector2(1.2, 1.2), 0.2)
+			await get_tree().create_timer(0.5).timeout
 			enable_player_control()
-			current_runtime_timer.start(time_limit)
 			for c in cards:
 				if c != null:
 					c.disable_card()
+			current_time_limit = default_time_limit
+			handle_effects()
+			current_runtime_timer.start(current_time_limit)
 		states.CARDS:
-			tween.tween_property(camera, "zoom", Vector2(0.48, 0.48), 0.6)
 			game_state = states.CARDS
+			tween.tween_property(camera, "zoom", Vector2(0.48, 0.48), 0.6)
+			tween.tween_property(camera, "position", Vector2(0, 550), 0.5)
 			disable_player_control()
+			await get_tree().create_timer(1.2).timeout
 			var foundfirst: bool = false
 			for c in cards:
 				if c != null:
@@ -213,9 +238,9 @@ func change_gamestate(state: states):
 
 
 func _on_progress_timer_timeout():
+	change_gamestate(states.PLATFORMER)
 	load_level()
 	load_cards()
-	change_gamestate(states.PLATFORMER)
 
 
 func _on_current_runtime_timeout():

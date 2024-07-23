@@ -46,8 +46,8 @@ offset_left = -1116.0
 offset_top = -609.0
 offset_right = -1076.0
 offset_bottom = -569.0
-scale = Vector2(57.3141, 35.5541)
-color = Color(0.1258, 0.15793, 0.34, 1)
+scale = Vector2(57.3141, 47.9141)
+color = Color(0.462745, 0.270588, 0.207843, 1)
 
 [node name="Progress" type="Node" parent="."]
 
@@ -55,8 +55,7 @@ color = Color(0.1258, 0.15793, 0.34, 1)
 rotation = 1.5708
 scale = Vector2(6, 6)
 sprite_frames = SubResource("SpriteFrames_faahf")
-animation = &"visible"
-frame_progress = 0.249627
+animation = &"invisible"
 
 [node name="Progress_Timer" type="Timer" parent="Progress"]
 wait_time = 3.0
@@ -79,6 +78,32 @@ one_shot = true
 [node name="Win_Animation_Timer" type="Timer" parent="Level_Time"]
 wait_time = 2.0
 one_shot = true
+
+[node name="Card_Slots" type="Node" parent="."]
+
+[node name="Slot1" type="ColorRect" parent="Card_Slots"]
+offset_left = -370.0
+offset_top = 400.0
+offset_right = -330.0
+offset_bottom = 440.0
+scale = Vector2(5.56, 9.68)
+color = Color(0.752941, 0.721569, 0.678431, 1)
+
+[node name="Slot2" type="ColorRect" parent="Card_Slots"]
+offset_left = -110.0
+offset_top = 400.0
+offset_right = -70.0
+offset_bottom = 440.0
+scale = Vector2(5.56, 9.68)
+color = Color(0.247059, 0.435294, 0.27451, 1)
+
+[node name="Slot3" type="ColorRect" parent="Card_Slots"]
+offset_left = 170.0
+offset_top = 400.0
+offset_right = 210.0
+offset_bottom = 440.0
+scale = Vector2(5.56, 9.68)
+color = Color(0.768627, 0.572549, 0.337255, 1)
 
 [connection signal="timeout" from="Progress/Progress_Timer" to="." method="_on_progress_timer_timeout"]
 [connection signal="timeout" from="Level_Time/Current_Runtime" to="." method="_on_current_runtime_timeout"]
