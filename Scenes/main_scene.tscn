@@ -75,10 +75,6 @@ label_settings = SubResource("LabelSettings_x1w7r")
 [node name="Current_Runtime" type="Timer" parent="Level_Time"]
 one_shot = true
 
-[node name="Win_Animation_Timer" type="Timer" parent="Level_Time"]
-wait_time = 2.0
-one_shot = true
-
 [node name="Card_Slots" type="Node" parent="."]
 
 [node name="Slot1" type="ColorRect" parent="Card_Slots"]

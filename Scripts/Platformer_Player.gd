@@ -61,6 +61,8 @@ enum states {
 @onready var leftray: RayCast2D = $leftray
 @onready var rightray: RayCast2D = $rightray
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
+@onready var run_start_timer = $Timers/Run_Start_Timer
+
 
 func _ready():
 	player_state = states.AIRBORNE
@@ -158,6 +160,8 @@ func handle_movement() -> void:
 			velocity.x = -air_speed
 	elif direction:
 		if player_state == states.GROUNDED:
+			if velocity.x == 0:
+				run_start_timer.start()
 			velocity.x = direction * ground_speed
 		else:
 			velocity.x = direction * air_speed
@@ -173,6 +177,8 @@ func respawn() -> void:
 	is_wall_sliding = false
 	#replace this logic with spawning a "explosion" sprite at player pos so
 	#player can instantly respawn
+	player_state = states.DYING
+	await get_tree().create_timer(dying_timer.wait_time).timeout
 	player_state = states.AIRBORNE
 	position = player_spawn_point
 
@@ -227,11 +233,14 @@ func animate_player() -> void:
 			if velocity.x == 0:
 				sprite.play("idle")
 			else:
-				sprite.play("run")
+				if run_start_timer.is_stopped():
+					sprite.play("run")
+				else:
+					sprite.play("run_start")
 		states.AIRBORNE:
-			if velocity.y < 0:
+			if velocity.y < -80:
 				sprite.play("jump_rise")
-			elif velocity.y > 0:
+			elif velocity.y > 80:
 				sprite.play("jump_fall")
 			else:
 				sprite.play("jump_peak")
@@ -239,9 +248,9 @@ func animate_player() -> void:
 			sprite.play("wall_slide")
 			match wall_direction():
 				"left":
-					sprite.flip_h = true
-				"right":
 					sprite.flip_h = false
+				"right":
+					sprite.flip_h = true
 		states.DYING:
 			sprite.play("death")
 		states.WINNING:
@@ -257,7 +266,12 @@ func _on_area_area_entered(area):
 
 func _on_dying_timer_timeout():
 	get_parent().player_died()
+	queue_free()
 
 func _on_wall_jump_timer_timeout():
 	wall_jumping = false
 
+
+
+func _on_run_start_timer_timeout():
+	pass # Replace with function body.

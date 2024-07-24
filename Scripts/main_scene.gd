@@ -31,7 +31,6 @@ enum states {
 @onready var progress_sprite = $Progress/ProgressSprite
 @onready var time_left_label = $Level_Time/Time_Left
 @onready var current_runtime_timer = $Level_Time/Current_Runtime
-@onready var win_animation_timer = $Level_Time/Win_Animation_Timer
 
 
 # Called when the node enters the scene tree for the first time.
@@ -107,8 +106,7 @@ func player_died():
 func player_won():
 	#change the level
 	current_runtime_timer.paused = true
-	win_animation_timer.start()
-	await get_tree().create_timer(2).timeout
+	await get_tree().create_timer(1.6).timeout
 	current_runtime_timer.paused = false
 	current_runtime_timer.stop()
 	current_level_node.queue_free()
@@ -201,7 +199,7 @@ func change_gamestate(state: states):
 		states.PLATFORMER:
 			game_state = states.PLATFORMER
 			tween.tween_property(camera, "position", Vector2(0, 0), 0.2)
-			tween.tween_property(camera, "zoom", Vector2(1.2, 1.2), 0.2)
+			tween.tween_property(camera, "zoom", Vector2(1.7, 1.7), 0.2)
 			await get_tree().create_timer(0.5).timeout
 			enable_player_control()
 			for c in cards:
