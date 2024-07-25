@@ -31,7 +31,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pvh2u"]
-size = Vector2(12, 4)
+size = Vector2(14, 4)
 
 [node name="Pressure_Plate" type="Node2D"]
 z_index = 4

@@ -6,6 +6,7 @@ const DEFAULT_GROUND_SPEED: float = 250
 const DEFAULT_AIR_SPEED: float = 250
 const BOOSTED_GROUND_SPEED: float = 330
 const BOOSTED_AIR_SPEED: float = 330
+const LIFTING_SPEED_PERCENTAGE: float = 0.55
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
@@ -60,7 +61,6 @@ enum states {
 	DYING,
 	WINNING,
 	WALL_SLIDE,
-	LIFTING,
 }
 
 
@@ -90,7 +90,7 @@ func _physics_process(delta):
 		handle_movement()
 		move_and_slide()
 		if lifting:
-			lifted_box.velocity = velocity
+			lifted_box.position = position
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -157,11 +157,11 @@ func handle_inputs() -> void:
 				#facing right
 				if rightray.is_colliding():
 					return
-				lifted_box.position = position + Vector2(19, 0)
+				lifted_box.position = position + Vector2(15, 0)
 			else:
 				if leftray.is_colliding():
 					return
-				lifted_box.position = position + Vector2(-19, 0)
+				lifted_box.position = position + Vector2(-15, 0)
 			lifting = false
 			lifted_box.set_lifted(false)
 			lifted_box = null
@@ -174,21 +174,17 @@ func handle_inputs() -> void:
 					lifting = true
 					lifted_box = rightray.get_collider()
 					lifted_box.set_lifted(true)
-					lifted_box.position = position + Vector2(0, -33)
-					player_state = states.LIFTING
 			elif sprite.flip_h == true:
 				#facing the left
 				if leftray.is_colliding() and leftray.get_collider().is_in_group("liftable"):
 					lifting = true
 					lifted_box = leftray.get_collider()
 					lifted_box.set_lifted(true)
-					lifted_box.position = position + Vector2(0, -33)
-					player_state = states.LIFTING
 			lift_buffer_time_left = 0
 				
 		
 func handle_jump() -> void:
-	if jump_buffer_time_left > 0:
+	if jump_buffer_time_left > 0 and not lifting:
 		if player_state == states.GROUNDED or coyote_time_left > 0:
 			velocity.y = jump_velocity
 		elif is_wall_sliding and enabled_wall_jump:
@@ -221,6 +217,8 @@ func handle_movement() -> void:
 				velocity.x = direction * ground_speed
 		else:
 			velocity.x = direction * air_speed
+		if lifting:
+			velocity.x *= LIFTING_SPEED_PERCENTAGE
 	else:
 		if player_state == states.GROUNDED:
 			velocity.x = move_toward(velocity.x, 0, GROUND_DECELERATION)
@@ -237,6 +235,8 @@ func respawn() -> void:
 	await get_tree().create_timer(dying_timer.wait_time).timeout
 	player_state = states.AIRBORNE
 	position = player_spawn_point
+	lifting = false
+	get_parent().reset_level()
 
 func die() -> void:
 	#do death stuff here
@@ -287,14 +287,21 @@ func animate_player() -> void:
 	match player_state:
 		states.GROUNDED:
 			if velocity.x == 0:
-				sprite.play("idle")
+				if lifting:
+					sprite.play("idle_box")
+				else:
+					sprite.play("idle")
 			else:
-				if run_start_timer.is_stopped():
+				if lifting:
+					sprite.play("run_box")
+				elif run_start_timer.is_stopped():
 					sprite.play("run")
 				else:
 					sprite.play("run_start")
 		states.AIRBORNE:
-			if velocity.y < -80:
+			if lifting:
+				sprite.play("fall_box")
+			elif velocity.y < -80:
 				sprite.play("jump_rise")
 			elif velocity.y > 80:
 				sprite.play("jump_fall")
@@ -311,7 +318,6 @@ func animate_player() -> void:
 			sprite.play("death")
 		states.WINNING:
 			sprite.play("winning")
-
 func _on_area_area_entered(area):
 	if area.is_in_group("killbox"):
 		respawn()

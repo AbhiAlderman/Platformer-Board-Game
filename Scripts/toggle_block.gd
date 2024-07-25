@@ -2,12 +2,11 @@ extends Node2D
 
 var active: bool = true
 @onready var sprite = $AnimatedSprite2D
-@onready var collision_shape = $StaticBody2D/CollisionShape2D
+@onready var staticbody = $StaticBody2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	collision_shape.disabled = false
-	active = true
+	staticbody.set_collision_layer_value(1, true)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -20,11 +19,9 @@ func _process(delta):
 
 
 func on_plate_pressed():
-	print("pressed")
 	active = false
-	collision_shape.disabled = true
+	staticbody.set_collision_layer_value(1, false)
 
 func on_plate_released():
-	print("released")
 	active = true
-	collision_shape.disabled = false
+	staticbody.set_collision_layer_value(1, true)

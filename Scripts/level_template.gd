@@ -6,19 +6,24 @@ signal on_player_death
 @onready var more_traps = $Tilemaps/more_traps
 @onready var pressure_plate = $Button/Pressure_Plate
 @onready var toggle_blocks = $Button/Toggle_Blocks
+@onready var boxes = $Boxes
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	more_traps.visible = false
 	for block in toggle_blocks.get_children():
 		block.active = true
-		block.collision_shape.disabled = false
 		pressure_plate.button_pressed.connect(block.on_plate_pressed)
 		pressure_plate.button_released.connect(block.on_plate_released)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
 
+func reset_level() -> void:
+	for block in toggle_blocks.get_children():
+		block.active = true
+	for box in boxes.get_children():
+		box.reset_position()
 func player_died() -> void:
 	get_parent().player_died()
 
