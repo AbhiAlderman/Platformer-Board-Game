@@ -1,11 +1,13 @@
-[gd_scene load_steps=12 format=3 uid="uid://coyph28v6u53n"]
+[gd_scene load_steps=14 format=3 uid="uid://coyph28v6u53n"]
 
 [ext_resource type="Script" path="res://Scripts/level_template.gd" id="1_syusw"]
 [ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="2_50ai3"]
 [ext_resource type="Texture2D" uid="uid://b0wf616yax7y5" path="res://Assets/level/image.png" id="3_pw5xr"]
 [ext_resource type="Texture2D" uid="uid://ceydgl0v36n67" path="res://Assets/level/no-man-tileset/no man's land v1.0 transparent.PNG" id="3_vcp6k"]
 [ext_resource type="TileSet" uid="uid://dxdh1j4y2hswa" path="res://Assets/Tileset/testing.tres" id="4_p2e4v"]
+[ext_resource type="PackedScene" uid="uid://dbbov6pfmwlkq" path="res://Scenes/pressure_plate.tscn" id="5_0whoa"]
 [ext_resource type="PackedScene" uid="uid://bycv6kbtt4nef" path="res://Scenes/trapzone.tscn" id="5_kndi3"]
+[ext_resource type="PackedScene" uid="uid://dynfyew20a8me" path="res://Scenes/toggle_block.tscn" id="6_dtno7"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sgtaj"]
 texture = ExtResource("3_vcp6k")
@@ -110,6 +112,22 @@ position = Vector2(0.78125, 1.25)
 scale = Vector2(0.9375, 1.19707)
 shape = SubResource("RectangleShape2D_f38rm")
 
+[node name="Button" type="Node" parent="."]
+
+[node name="Pressure_Plate" parent="Button" instance=ExtResource("5_0whoa")]
+position = Vector2(-68, 199)
+
+[node name="Toggle_Blocks" type="Node" parent="Button"]
+
+[node name="toggle_block" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
+position = Vector2(79, 112)
+
+[node name="toggle_block2" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
+position = Vector2(79, 128)
+
+[node name="toggle_block3" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
+position = Vector2(79, 144)
+
 [node name="KillZone" type="Area2D" parent="." groups=["killbox"]]
 position = Vector2(-1, -112)
 collision_layer = 2
@@ -141,8 +159,10 @@ offset_top = -224.0
 offset_right = -356.0
 offset_bottom = -193.0
 scale = Vector2(25.7474, 14.5297)
-color = Color(0.45, 0.45, 0.45, 1)
+color = Color(0.341176, 0.447059, 0.466667, 1)
 
 [node name="Platformer_Player" parent="." instance=ExtResource("2_50ai3")]
 z_index = 4
 position = Vector2(-328, 166)
+
+[node name="Boxes" type="Node" parent="."]

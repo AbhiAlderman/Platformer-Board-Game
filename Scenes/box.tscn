@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://d2k47elvdnwro"]
+
+[ext_resource type="Texture2D" uid="uid://ye43fktkjqmp" path="res://Assets/level/interactables/box.png" id="1_5mmmv"]
+[ext_resource type="Script" path="res://Scripts/box.gd" id="1_yb3b1"]
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_rsrel"]
+a = Vector2(6, 0)
+b = Vector2(-17, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4le2o"]
+atlas = ExtResource("1_5mmmv")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rcdai"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4le2o")
+}],
+"loop": true,
+"name": &"default",
+"speed": 1.0
+}]
+
+[node name="box" type="CharacterBody2D" groups=["liftable"]]
+z_index = 6
+collision_layer = 17
+collision_mask = 17
+script = ExtResource("1_yb3b1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+z_index = 2
+position = Vector2(6, 11)
+shape = SubResource("SegmentShape2D_rsrel")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_rcdai")

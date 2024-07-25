@@ -21,6 +21,8 @@ const WALL_SLIDE_SPEED: float = 100
 const DEFAULT_WALL_JUMP_VELOCITY: float = -350
 const BOOSTED_WALL_JUMP_VELOCITY: float = -450
 const GLIDE_VELOCITY: float = 150
+#for buffs
+const LIFT_BUFFER_TIME: float = 0.12
 #variables
 var coyote_time_left: float = 0.0
 var jump_buffer_time_left: float = 0.0
@@ -48,13 +50,19 @@ var wall_jump_velocity: float = DEFAULT_WALL_JUMP_VELOCITY
 var player_spawn_point: Vector2
 var player_state: states
 var wall_speed: float
+var run_start: bool = false
+var lifting: bool = false
+var lift_buffer_time_left: float = 0.0
+var lifted_box = null
 enum states {
 	GROUNDED,
 	AIRBORNE,
 	DYING,
 	WINNING,
 	WALL_SLIDE,
+	LIFTING,
 }
+
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var dying_timer: Timer = $Timers/Dying_Timer
@@ -78,8 +86,11 @@ func _physics_process(delta):
 		handle_gravity(delta)
 		handle_input_buffer(delta)
 		handle_jump()
+		handle_inputs()
 		handle_movement()
 		move_and_slide()
+		if lifting:
+			lifted_box.velocity = velocity
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -130,12 +141,52 @@ func wall_direction() -> String:
 	return "none"
 
 func handle_input_buffer(delta) -> void:
-	jump_buffer_time_left -= delta
+	jump_buffer_time_left = max(jump_buffer_time_left - delta, 0)
+	lift_buffer_time_left = max(lift_buffer_time_left - delta, 0)
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer_time_left = JUMP_BUFFER_TIME
 	if Input.is_action_just_released("jump"):
 		jump_time = JUMP_HOLD_TIME
+	if Input.is_action_just_pressed("interact"):
+		lift_buffer_time_left = LIFT_BUFFER_TIME
 
+func handle_inputs() -> void:
+	if lift_buffer_time_left > 0:
+		if lifting:
+			if sprite.flip_h == false:
+				#facing right
+				if rightray.is_colliding():
+					return
+				lifted_box.position = position + Vector2(19, 0)
+			else:
+				if leftray.is_colliding():
+					return
+				lifted_box.position = position + Vector2(-19, 0)
+			lifting = false
+			lifted_box.set_lifted(false)
+			lifted_box = null
+			player_state = states.AIRBORNE
+			lift_buffer_time_left = 0
+		elif player_state == states.GROUNDED:
+			if sprite.flip_h == false:
+				#facing the right
+				if rightray.is_colliding() and rightray.get_collider().is_in_group("liftable"):
+					lifting = true
+					lifted_box = rightray.get_collider()
+					lifted_box.set_lifted(true)
+					lifted_box.position = position + Vector2(0, -33)
+					player_state = states.LIFTING
+			elif sprite.flip_h == true:
+				#facing the left
+				if leftray.is_colliding() and leftray.get_collider().is_in_group("liftable"):
+					lifting = true
+					lifted_box = leftray.get_collider()
+					lifted_box.set_lifted(true)
+					lifted_box.position = position + Vector2(0, -33)
+					player_state = states.LIFTING
+			lift_buffer_time_left = 0
+				
+		
 func handle_jump() -> void:
 	if jump_buffer_time_left > 0:
 		if player_state == states.GROUNDED or coyote_time_left > 0:
@@ -161,8 +212,13 @@ func handle_movement() -> void:
 	elif direction:
 		if player_state == states.GROUNDED:
 			if velocity.x == 0:
+				run_start_timer.stop()
 				run_start_timer.start()
-			velocity.x = direction * ground_speed
+				run_start = true
+			if run_start:
+				velocity.x = direction * ground_speed * 0.7
+			else:
+				velocity.x = direction * ground_speed
 		else:
 			velocity.x = direction * air_speed
 	else:
@@ -271,7 +327,5 @@ func _on_dying_timer_timeout():
 func _on_wall_jump_timer_timeout():
 	wall_jumping = false
 
-
-
 func _on_run_start_timer_timeout():
-	pass # Replace with function body.
+	run_start = false

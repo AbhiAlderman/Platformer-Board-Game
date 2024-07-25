@@ -56,7 +56,7 @@ offset_top = -289.0
 offset_right = -475.0
 offset_bottom = -249.0
 scale = Vector2(25.7474, 14.5297)
-color = Color(0.2959, 0.054, 0.3, 1)
+color = Color(0.341176, 0.447059, 0.466667, 1)
 
 [node name="Platformer_Player" parent="." instance=ExtResource("2_rii10")]
 z_index = 4
