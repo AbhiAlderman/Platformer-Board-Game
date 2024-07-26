@@ -7,6 +7,8 @@ signal on_player_death
 @onready var pressure_plate = $Button/Pressure_Plate
 @onready var toggle_blocks = $Button/Toggle_Blocks
 @onready var boxes = $Boxes
+@onready var platforms_and_levers = $Platforms_and_Levers
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,6 +17,28 @@ func _ready():
 		block.active = true
 		pressure_plate.button_pressed.connect(block.on_plate_pressed)
 		pressure_plate.button_released.connect(block.on_plate_released)
+	for platform_bundle in platforms_and_levers.get_children():
+		var platform
+		var lever
+		var markerone
+		var markertwo
+		for child in platform_bundle.get_children():
+			match child.name:
+				"Platform":
+					platform = child
+					print("got platform")
+				"Lever":
+					lever = child
+					print("got lever")
+				"Position1":
+					markerone = child
+				"Position2":
+					markertwo = child
+				_:
+					print("invalid child of platform bundle")
+		platform.assign_positions(markerone.position, markertwo.position)
+		platform.assign_lever(lever)
+		lever.toggled.connect(platform.switch_position)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
@@ -57,4 +81,5 @@ func enable_speed_boost() -> void:
 	
 func enable_jump_boost() -> void:
 	platformer_player.enable_jump_boost()
+
 

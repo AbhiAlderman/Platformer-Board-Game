@@ -932,11 +932,11 @@ animations = [{
 "speed": 16.0
 }]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ykrau"]
-radius = 5.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3gw28"]
+size = Vector2(13, 30.5202)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0af46"]
-radius = 6.24999
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d0t0e"]
+size = Vector2(16.25, 31)
 
 [node name="Platformer_Player" type="CharacterBody2D"]
 z_index = 2
@@ -946,21 +946,22 @@ script = ExtResource("1_l4e1b")
 position = Vector2(0, -2)
 scale = Vector2(1.1, 1.1)
 sprite_frames = SubResource("SpriteFrames_s0uty")
-animation = &"fall_box"
-frame_progress = 0.238064
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 1)
-shape = SubResource("CapsuleShape2D_ykrau")
+visible = false
+position = Vector2(0.5, 2.74757)
+scale = Vector2(1, 1.03194)
+shape = SubResource("RectangleShape2D_3gw28")
 
 [node name="Area" type="Area2D" parent="."]
 collision_layer = 2
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area"]
-visible = false
+position = Vector2(0.5, 3.5)
 scale = Vector2(0.800001, 1)
-shape = SubResource("CapsuleShape2D_0af46")
+shape = SubResource("RectangleShape2D_d0t0e")
 
 [node name="Timers" type="Node" parent="."]
 
@@ -978,14 +979,14 @@ one_shot = true
 
 [node name="leftray" type="RayCast2D" parent="."]
 position = Vector2(-4, 6)
-target_position = Vector2(-22, 0)
-collision_mask = 3
+target_position = Vector2(-13, 0)
+collision_mask = 19
 hit_from_inside = true
 
 [node name="rightray" type="RayCast2D" parent="."]
 position = Vector2(3, 6)
-target_position = Vector2(24, 0)
-collision_mask = 3
+target_position = Vector2(13, 0)
+collision_mask = 19
 hit_from_inside = true
 
 [connection signal="area_entered" from="Area" to="." method="_on_area_area_entered"]

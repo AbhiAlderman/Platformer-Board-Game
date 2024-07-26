@@ -1,8 +1,7 @@
 extends CharacterBody2D
 
-
-const DEFAULT_FALL_GRAVITY: float = 2200
-# Get the gravity from the project settings to be synced with RigidBody nodes.
+# Get the gravity from the project settings to be synced with RigidBody nodes.\
+var default_gravity: float = 2200
 var lifted: bool = false
 var default_position: Vector2
 @onready var collision_shape_2d = $CollisionShape2D
@@ -23,7 +22,7 @@ func _process(_delta):
 		sprite.play("visible")
 
 func get_gravity():
-	return DEFAULT_FALL_GRAVITY
+	return default_gravity
 
 func set_lifted(lift_bool: bool):
 	lifted = lift_bool
@@ -36,3 +35,6 @@ func set_lifted(lift_bool: bool):
 func reset_position():
 	position = default_position
 	set_lifted(false)
+
+func change_gravity(grav: float):
+	default_gravity = grav

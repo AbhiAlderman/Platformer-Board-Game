@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://coyph28v6u53n"]
+[gd_scene load_steps=17 format=3 uid="uid://coyph28v6u53n"]
 
 [ext_resource type="Script" path="res://Scripts/level_template.gd" id="1_syusw"]
 [ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="2_50ai3"]
@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" uid="uid://ceydgl0v36n67" path="res://Assets/level/no-man-tileset/no man's land v1.0 transparent.PNG" id="3_vcp6k"]
 [ext_resource type="TileSet" uid="uid://dxdh1j4y2hswa" path="res://Assets/Tileset/testing.tres" id="4_p2e4v"]
 [ext_resource type="PackedScene" uid="uid://dbbov6pfmwlkq" path="res://Scenes/pressure_plate.tscn" id="5_0whoa"]
+[ext_resource type="PackedScene" uid="uid://cykfgvctbr55c" path="res://Scenes/platform.tscn" id="5_iqujq"]
 [ext_resource type="PackedScene" uid="uid://bycv6kbtt4nef" path="res://Scenes/trapzone.tscn" id="5_kndi3"]
 [ext_resource type="PackedScene" uid="uid://dynfyew20a8me" path="res://Scenes/toggle_block.tscn" id="6_dtno7"]
 [ext_resource type="PackedScene" uid="uid://d2k47elvdnwro" path="res://Scenes/box.tscn" id="9_bfouy"]
+[ext_resource type="PackedScene" uid="uid://cq3vvtt1q57ga" path="res://Scenes/lever.tscn" id="11_kfc6r"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sgtaj"]
 texture = ExtResource("3_vcp6k")
@@ -164,9 +166,25 @@ color = Color(0.341176, 0.447059, 0.466667, 1)
 
 [node name="Platformer_Player" parent="." instance=ExtResource("2_50ai3")]
 z_index = 4
-position = Vector2(-300, -101)
+position = Vector2(-330, -82)
 
 [node name="Boxes" type="Node" parent="."]
 
 [node name="box" parent="Boxes" instance=ExtResource("9_bfouy")]
 position = Vector2(-216, -129)
+
+[node name="Platforms_and_Levers" type="Node" parent="."]
+
+[node name="Platform_One" type="Node" parent="Platforms_and_Levers"]
+
+[node name="Platform" parent="Platforms_and_Levers/Platform_One" instance=ExtResource("5_iqujq")]
+position = Vector2(1, 0)
+
+[node name="Lever" parent="Platforms_and_Levers/Platform_One" instance=ExtResource("11_kfc6r")]
+position = Vector2(-115, 192)
+
+[node name="Position1" type="Marker2D" parent="Platforms_and_Levers/Platform_One"]
+position = Vector2(-141, -58)
+
+[node name="Position2" type="Marker2D" parent="Platforms_and_Levers/Platform_One"]
+position = Vector2(6, 198)

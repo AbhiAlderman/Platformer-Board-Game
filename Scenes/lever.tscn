@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://cq3vvtt1q57ga"]
+
+[ext_resource type="Script" path="res://Scripts/Lever.gd" id="1_nqarx"]
+[ext_resource type="Texture2D" uid="uid://xi7qma0dqofr" path="res://Assets/level/interactables/lever.png" id="2_8c281"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vycn4"]
+atlas = ExtResource("2_8c281")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6crke"]
+atlas = ExtResource("2_8c281")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5fjgv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vycn4")
+}],
+"loop": true,
+"name": &"off",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6crke")
+}],
+"loop": true,
+"name": &"on",
+"speed": 1.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_m0dsw"]
+height = 40.0
+
+[node name="Lever" type="StaticBody2D" groups=["lever"]]
+z_index = 4
+collision_layer = 16
+collision_mask = 16
+script = ExtResource("1_nqarx")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_5fjgv")
+animation = &"off"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -16)
+shape = SubResource("CapsuleShape2D_m0dsw")
