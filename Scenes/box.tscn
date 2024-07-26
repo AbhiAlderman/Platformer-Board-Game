@@ -53,3 +53,10 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="switch_detection"]
 shape = SubResource("RectangleShape2D_df0ug")
+
+[node name="PlatformDetectorRay" type="RayCast2D" parent="."]
+position = Vector2(0, 9)
+scale = Vector2(-17.3168, 0.278507)
+target_position = Vector2(0, 14.3623)
+collision_mask = 32
+hit_from_inside = true

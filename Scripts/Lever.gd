@@ -15,7 +15,6 @@ func _process(delta):
 	pass
 	
 func toggle() -> void:
-	print("toggleable is: " + str(toggleable))
 	if not toggleable:
 		return
 	if on:

@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://c5s4t5wsoufw"]
+[gd_scene load_steps=5 format=3 uid="uid://c5s4t5wsoufw"]
 
 [ext_resource type="Script" path="res://Scripts/main_scene.gd" id="1_8wvd0"]
 [ext_resource type="Texture2D" uid="uid://c2v2s5hxoe4mp" path="res://Assets/WorldMap/map.png" id="2_fdmnk"]
-[ext_resource type="FontFile" uid="uid://diqnt3wxqeb3s" path="res://Assets/UI/CyberpunkCraftpixPixel.otf" id="3_7p0op"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mn62u"]
 atlas = ExtResource("2_fdmnk")
@@ -26,13 +25,6 @@ animations = [{
 "name": &"visible",
 "speed": 9.0
 }]
-
-[sub_resource type="LabelSettings" id="LabelSettings_x1w7r"]
-font = ExtResource("3_7p0op")
-font_size = 17
-outline_size = 2
-outline_color = Color(1, 0, 0, 1)
-shadow_color = Color(0, 0, 0, 1)
 
 [node name="Main_Scene" type="Node2D"]
 script = ExtResource("1_8wvd0")
@@ -61,19 +53,4 @@ animation = &"invisible"
 wait_time = 3.0
 one_shot = true
 
-[node name="Level_Time" type="Node" parent="."]
-
-[node name="Time_Left" type="Label" parent="Level_Time"]
-z_index = 6
-offset_left = 281.0
-offset_top = -254.0
-offset_right = 321.0
-offset_bottom = -231.0
-scale = Vector2(4.28, 4.64)
-label_settings = SubResource("LabelSettings_x1w7r")
-
-[node name="Current_Runtime" type="Timer" parent="Level_Time"]
-one_shot = true
-
 [connection signal="timeout" from="Progress/Progress_Timer" to="." method="_on_progress_timer_timeout"]
-[connection signal="timeout" from="Level_Time/Current_Runtime" to="." method="_on_current_runtime_timeout"]

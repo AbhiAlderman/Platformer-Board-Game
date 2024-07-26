@@ -55,6 +55,7 @@ var run_start: bool = false
 var lifting: bool = false
 var interact_buffer_time_left: float = 0.0
 var lifted_box = null
+var moved_by_platform: bool = false
 enum states {
 	GROUNDED,
 	AIRBORNE,
@@ -70,6 +71,8 @@ enum states {
 @onready var rightray: RayCast2D = $rightray
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
 @onready var run_start_timer = $Timers/Run_Start_Timer
+@onready var feetray = $feetray
+
 
 
 func _ready():
@@ -91,6 +94,8 @@ func _physics_process(delta):
 		move_and_slide()
 		if lifting:
 			lifted_box.position = position
+		if moved_by_platform:
+			position += feetray.get_collider().get_position_changed() * delta
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -98,31 +103,38 @@ func get_gravity() -> float:
 	return fall_gravity
 
 func handle_gravity(delta) -> void:
-	if not is_on_floor():
+	if not is_on_floor() and not feetray.is_colliding():
 		coyote_time_left -= delta
-		if is_on_wall() and enabled_wall_jump and velocity.y >= 0:
+		if is_on_wall() and enabled_wall_jump and velocity.y >= 0 and not lifting:
+			#wall slide
 			current_wall_direction = wall_direction()
 			if (current_wall_direction == "left" and Input.is_action_pressed("left") or 
 				current_wall_direction == "right" and Input.is_action_pressed("right")):
+				#player holding wall slide direction, apply wall slide gravity
 				is_wall_sliding = true
 				flipping = false
 				velocity.y = WALL_SLIDE_SPEED
 				player_state = states.WALL_SLIDE
 			else:
+				#player not holding wall slide direction, so apply normal gravity
 				velocity.y += get_gravity() * delta
 				is_wall_sliding = false
 				player_state = states.AIRBORNE
 			return
 		if Input.is_action_pressed("jump") and jump_time < JUMP_HOLD_TIME and velocity.y < 0:
+			#make player jump higher when holding jump
 			jump_time += delta
 			velocity.y += JUMP_HOLD_GRAVITY * delta
 		elif Input.is_action_pressed("jump") and enabled_glide and velocity.y >= 0:
+			#if glide is enabled, make player glide while falling and holding jump
 			velocity.y = GLIDE_VELOCITY
 		else:
+			#apply gravity normally
 			velocity.y += get_gravity() * delta
 		is_wall_sliding = false
 		player_state = states.AIRBORNE
 	else:
+		#player is grounded
 		player_state = states.GROUNDED
 		jump_time = 0.0
 		coyote_time_left = COYOTE_TIME
@@ -131,6 +143,7 @@ func handle_gravity(delta) -> void:
 		can_double_jump = true
 
 func wall_direction() -> String:
+	#get the direction of the wall touching the player
 	leftray.force_raycast_update()
 	rightray.force_raycast_update()
 	if is_on_wall():
@@ -141,6 +154,7 @@ func wall_direction() -> String:
 	return "none"
 
 func handle_input_buffer(delta) -> void:
+	#get inputs and use input buffers to make game feel more responsive
 	jump_buffer_time_left = max(jump_buffer_time_left - delta, 0)
 	interact_buffer_time_left = max(interact_buffer_time_left - delta, 0)
 	if Input.is_action_just_pressed("jump"):
@@ -153,16 +167,21 @@ func handle_input_buffer(delta) -> void:
 func handle_inputs() -> void:
 	if interact_buffer_time_left > 0:
 		if lifting:
+			#player is holding a box
+			if player_state != states.GROUNDED:
+				#only drop the box when on the ground
+				return
 			if sprite.flip_h == false:
 				#facing right
 				if rightray.is_colliding():
 					return
-				lifted_box.position = position + Vector2(16, 0)
+				lifted_box.position = position + Vector2(16, -5)
 				position -= Vector2(3, 0)
 			else:
+				#facing left
 				if leftray.is_colliding():
 					return
-				lifted_box.position = position + Vector2(-16, 0)
+				lifted_box.position = position + Vector2(-16, -5)
 				position += Vector2(3, 0)
 			lifting = false
 			lifted_box.set_lifted(false)
@@ -173,37 +192,44 @@ func handle_inputs() -> void:
 			if sprite.flip_h == false:
 				#facing the right
 				if rightray.is_colliding():
-					print("GROUPS ARE: " + str(rightray.get_collider().get_groups()))
 					if rightray.get_collider().is_in_group("liftable"):
+						#player is trying to grab a box
 						lifting = true
 						lifted_box = rightray.get_collider()
 						lifted_box.set_lifted(true)
 					elif rightray.get_collider().is_in_group("lever"):
+						#player is trying to toggle a lever
 						rightray.get_collider().toggle()
 				interact_buffer_time_left = 0
 			elif sprite.flip_h == true:
 				#facing the left
+				#note: this is repeated code. could not make simpler as it did not work for some reason
 				if leftray.is_colliding():
-					print("GROUPS ARE: " + str(leftray.get_collider().get_groups()))
 					if leftray.get_collider().is_in_group("liftable"):
+						#player is trying to grab a box
 						lifting = true
 						lifted_box = leftray.get_collider()
 						lifted_box.set_lifted(true)
 					elif leftray.get_collider().is_in_group("lever"):
+						#player is trying to toggle a lever
 						leftray.get_collider().toggle()
 				interact_buffer_time_left = 0
 				
 		
 func handle_jump() -> void:
 	if jump_buffer_time_left > 0 and not lifting:
+		#jump if player pressed jump within acceptable time and isnt holding a box
 		if player_state == states.GROUNDED or coyote_time_left > 0:
+			#jump if on the ground or recently left ground within acceptable time
 			velocity.y = jump_velocity
 		elif is_wall_sliding and enabled_wall_jump:
+			#player is sliding on a wall, jump off of it
 			velocity.y = wall_jump_velocity
 			wall_jumping = true
 			wall_jump_timer.start()
 			last_wall_direction = wall_direction()
 		elif can_double_jump and enabled_double_jump:
+			#double jump if able
 			velocity.y = jump_velocity
 			can_double_jump = false
 		jump_buffer_time_left = 0
@@ -211,32 +237,46 @@ func handle_jump() -> void:
 
 func handle_movement() -> void:
 	direction = Input.get_axis("left", "right")
+	if feetray.is_colliding():
+		#player is touching a platform
+		moved_by_platform = true
+	else:
+		#player is not touching a platform
+		moved_by_platform = false
 	if wall_jumping and enabled_wall_jump:
+		#give horizontal movement when jumping off a wall
 		if last_wall_direction == "left":
 			velocity.x = air_speed
 		else:
 			velocity.x = -air_speed
+		return
 	elif direction:
+		#player is holding left or right (but not both)
 		if player_state == states.GROUNDED:
 			if velocity.x == 0:
+				#player just began to run
 				run_start_timer.stop()
 				run_start_timer.start()
 				run_start = true
 			if run_start:
-				velocity.x = direction * ground_speed * 0.7
+				#make run startup slightly slower
+				velocity.x = direction * ground_speed * 0.73
 			else:
 				velocity.x = direction * ground_speed
 		else:
 			velocity.x = direction * air_speed
 		if lifting:
+			#make player slower when lifting
 			velocity.x *= LIFTING_SPEED_PERCENTAGE
 	else:
+		#player is not holding left or right (or is holding both)
 		if player_state == states.GROUNDED:
 			velocity.x = move_toward(velocity.x, 0, GROUND_DECELERATION)
 		else:
 			velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION)
 
 func respawn() -> void:
+	#respawn the player
 	wall_jumping = false
 	flipping = false
 	is_wall_sliding = false
@@ -294,6 +334,7 @@ func handle_flip() -> void:
 		sprite.flip_h = true
 
 func animate_player() -> void:
+	#handle animation logic
 	handle_flip()
 	match player_state:
 		states.GROUNDED:
@@ -329,6 +370,7 @@ func animate_player() -> void:
 			sprite.play("death")
 		states.WINNING:
 			sprite.play("winning")
+
 func _on_area_area_entered(area):
 	if area.is_in_group("killbox"):
 		respawn()

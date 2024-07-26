@@ -955,6 +955,7 @@ scale = Vector2(1, 1.03194)
 shape = SubResource("RectangleShape2D_3gw28")
 
 [node name="Area" type="Area2D" parent="."]
+visible = false
 collision_layer = 2
 collision_mask = 2
 
@@ -987,6 +988,13 @@ hit_from_inside = true
 position = Vector2(3, 6)
 target_position = Vector2(13, 0)
 collision_mask = 19
+hit_from_inside = true
+
+[node name="feetray" type="RayCast2D" parent="."]
+position = Vector2(1, 18)
+scale = Vector2(11.6278, 0.0170851)
+target_position = Vector2(0, 58.5306)
+collision_mask = 32
 hit_from_inside = true
 
 [connection signal="area_entered" from="Area" to="." method="_on_area_area_entered"]
