@@ -26,10 +26,8 @@ func _ready():
 			match child.name:
 				"Platform":
 					platform = child
-					print("got platform")
 				"Lever":
 					lever = child
-					print("got lever")
 				"Position1":
 					markerone = child
 				"Position2":
@@ -43,11 +41,6 @@ func _ready():
 func _process(delta):
 	pass
 
-func reset_level() -> void:
-	for block in toggle_blocks.get_children():
-		block.active = true
-	for box in boxes.get_children():
-		box.reset_position()
 func player_died() -> void:
 	get_parent().player_died()
 

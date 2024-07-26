@@ -68,3 +68,4 @@ func assign_lever(lever) -> void:
 	
 func get_position_changed() -> Vector2:
 	return position_change
+	

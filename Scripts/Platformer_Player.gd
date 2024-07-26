@@ -276,19 +276,6 @@ func handle_movement() -> void:
 		else:
 			velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION)
 
-func respawn() -> void:
-	#respawn the player
-	wall_jumping = false
-	flipping = false
-	is_wall_sliding = false
-	#replace this logic with spawning a "explosion" sprite at player pos so
-	#player can instantly respawn
-	player_state = states.DYING
-	await get_tree().create_timer(dying_timer.wait_time).timeout
-	player_state = states.AIRBORNE
-	position = player_spawn_point
-	lifting = false
-	get_parent().reset_level()
 
 func die() -> void:
 	#do death stuff here
@@ -374,9 +361,9 @@ func animate_player() -> void:
 
 func _on_area_area_entered(area):
 	if area.is_in_group("killbox"):
-		respawn()
+		die()
 	elif area.is_in_group("trap") and enabled_traps:
-		respawn()
+		die()
 	elif area.is_in_group("goal"):
 		reached_goal()
 

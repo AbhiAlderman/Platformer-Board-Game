@@ -97,11 +97,11 @@ func load_cards():
 	
 func player_died():
 	#change the level
-	if card_count <= 0:
-		current_level_node.queue_free()
-		change_gamestate(states.GAMEOVER)
-	else:
-		player_won()
+	await get_tree().create_timer(1.2).timeout
+	current_level_node.queue_free()
+	#current_level_number += 1
+	load_level()
+	change_gamestate(states.PLATFORMER)
 
 func player_won():
 	#change the level
