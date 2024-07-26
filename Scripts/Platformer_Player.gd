@@ -7,6 +7,7 @@ const DEFAULT_AIR_SPEED: float = 200
 const BOOSTED_GROUND_SPEED: float = 260
 const BOOSTED_AIR_SPEED: float = 260
 const LIFTING_SPEED_PERCENTAGE: float = 0.55
+const STARTUP_SPEED_PERCENTAGE: float = 0.77
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
@@ -260,7 +261,7 @@ func handle_movement() -> void:
 				run_start = true
 			if run_start:
 				#make run startup slightly slower
-				velocity.x = direction * ground_speed * 0.73
+				velocity.x = direction * ground_speed * STARTUP_SPEED_PERCENTAGE
 			else:
 				velocity.x = direction * ground_speed
 		else:
