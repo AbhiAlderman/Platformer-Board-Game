@@ -79,6 +79,7 @@ func _ready():
 	coyote_time_left = COYOTE_TIME
 	jump_buffer_time_left = JUMP_BUFFER_TIME
 	player_spawn_point = position
+	disabled = false
 	
 func _process(_delta):
 	animate_player()
@@ -300,7 +301,7 @@ func pause_level(pause_value: bool) -> void:
 	disabled = pause_value
 	
 func enable_player_control(value: bool) -> void:
-	disabled = value
+	disabled = not value
 
 func enable_double_jump(value: bool) -> void:
 	enabled_double_jump = value

@@ -1,36 +1,37 @@
-[gd_scene load_steps=12 format=3 uid="uid://wmdqxiwvwmdq"]
+[gd_scene load_steps=13 format=3 uid="uid://wmdqxiwvwmdq"]
 
 [ext_resource type="Script" path="res://Scripts/card.gd" id="1_xqqkw"]
-[ext_resource type="Texture2D" uid="uid://ca8r3uj75rb8t" path="res://Assets/cards/buffs/lift.png" id="2_c2eo6"]
-[ext_resource type="Texture2D" uid="uid://crrttwajp1qyo" path="res://Assets/cards/buffs/glide.png" id="3_wnbhe"]
-[ext_resource type="Texture2D" uid="uid://ba32yw8lrtwc8" path="res://Assets/cards/buffs/Spikes.png" id="4_53bnv"]
-[ext_resource type="Texture2D" uid="uid://cd0xq46d5othg" path="res://Assets/cards/buffs/double_jump.png" id="4_qrf1v"]
+[ext_resource type="Texture2D" uid="uid://cd0xq46d5othg" path="res://Assets/cards/buffs/double_jump.png" id="2_7cb0d"]
+[ext_resource type="Texture2D" uid="uid://crrttwajp1qyo" path="res://Assets/cards/buffs/glide.png" id="3_wy4uy"]
+[ext_resource type="Texture2D" uid="uid://ca8r3uj75rb8t" path="res://Assets/cards/buffs/lift.png" id="4_nodgq"]
+[ext_resource type="Texture2D" uid="uid://ba32yw8lrtwc8" path="res://Assets/cards/buffs/Spikes.png" id="5_1so3f"]
+[ext_resource type="Texture2D" uid="uid://bhr4355dhbaf5" path="res://Assets/cards/fool.png" id="6_k8kxj"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bi2b3"]
-atlas = ExtResource("4_qrf1v")
+[sub_resource type="AtlasTexture" id="AtlasTexture_eiovg"]
+atlas = ExtResource("2_7cb0d")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tj3qi"]
-atlas = ExtResource("3_wnbhe")
+[sub_resource type="AtlasTexture" id="AtlasTexture_vqqcn"]
+atlas = ExtResource("3_wy4uy")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_fdnoe"]
-atlas = ExtResource("2_c2eo6")
+[sub_resource type="AtlasTexture" id="AtlasTexture_s5k6x"]
+atlas = ExtResource("4_nodgq")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jby0k"]
-atlas = ExtResource("4_53bnv")
+[sub_resource type="AtlasTexture" id="AtlasTexture_f3off"]
+atlas = ExtResource("5_1so3f")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_c12iv"]
-atlas = ExtResource("2_c2eo6")
+[sub_resource type="AtlasTexture" id="AtlasTexture_e4b6e"]
+atlas = ExtResource("6_k8kxj")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_ybn3w"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_gcgo2"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_bi2b3")
+"texture": SubResource("AtlasTexture_eiovg")
 }],
 "loop": false,
 "name": &"default_double_jump",
@@ -38,15 +39,15 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_tj3qi")
+"texture": SubResource("AtlasTexture_vqqcn")
 }],
-"loop": false,
+"loop": true,
 "name": &"default_glide",
-"speed": 2.0
+"speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_fdnoe")
+"texture": SubResource("AtlasTexture_s5k6x")
 }],
 "loop": false,
 "name": &"default_lift",
@@ -54,7 +55,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_jby0k")
+"texture": SubResource("AtlasTexture_f3off")
 }],
 "loop": false,
 "name": &"default_spike",
@@ -62,7 +63,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_c12iv")
+"texture": SubResource("AtlasTexture_e4b6e")
 }],
 "loop": false,
 "name": &"default_wall_jump",
@@ -83,9 +84,8 @@ offset_bottom = -82.0
 scale = Vector2(12.3148, 22.8147)
 
 [node name="sprite" type="AnimatedSprite2D" parent="."]
-z_index = 4
-sprite_frames = SubResource("SpriteFrames_ybn3w")
-animation = &"default_spike"
+sprite_frames = SubResource("SpriteFrames_gcgo2")
+animation = &"default_double_jump"
 
 [connection signal="focus_entered" from="Button" to="." method="_on_button_focus_entered"]
 [connection signal="focus_exited" from="Button" to="." method="_on_button_focus_exited"]

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://barjaiilyatqn"
-path="res://.godot/imported/empty_slot.png-18c16bfe1af5addb9ed85975ca1533e8.ctex"
+path="res://.godot/imported/empty_slot.png-934b90b41fb284d6996ecc591d566bf2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/cards/buffs/empty_slot.png"
-dest_files=["res://.godot/imported/empty_slot.png-18c16bfe1af5addb9ed85975ca1533e8.ctex"]
+source_file="res://Assets/cards/empty_slot.png"
+dest_files=["res://.godot/imported/empty_slot.png-934b90b41fb284d6996ecc591d566bf2.ctex"]
 
 [params]
 

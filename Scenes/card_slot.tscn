@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3 uid="uid://ctchud7w61jdk"]
+
+[ext_resource type="Texture2D" uid="uid://barjaiilyatqn" path="res://Assets/cards/empty_slot.png" id="1_pwyi3"]
+[ext_resource type="Script" path="res://Scripts/Card_Slot.gd" id="1_viw7o"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3luj8"]
+atlas = ExtResource("1_pwyi3")
+region = Rect2(0, 0, 100, 150)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wmw1j"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3luj8")
+}],
+"loop": false,
+"name": &"default",
+"speed": 1.0
+}]
+
+[node name="Card_Slot" type="Node2D"]
+script = ExtResource("1_viw7o")
+
+[node name="Button" type="Button" parent="."]
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_wmw1j")
+
+[connection signal="focus_entered" from="Button" to="." method="_on_button_focus_entered"]
+[connection signal="focus_exited" from="Button" to="." method="_on_button_focus_exited"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

@@ -11,6 +11,14 @@ const HAND_ODD_LEFTMID: Vector2 = Vector2(-50, 118)
 const HAND_ODD_CENTER: Vector2 = Vector2(0, 110)
 const HAND_ODD_RIGHTMID: Vector2 = Vector2(50, 118)
 const HAND_ODD_RIGHTMOST: Vector2 = Vector2(100, 142)
+
+const SLOT_POS_Y: float = -130
+const SLOT_X_GAP: float = 90
+const SLOT_POS_X_LEFTMOST: Vector2 = Vector2(-SLOT_X_GAP * 2, SLOT_POS_Y)
+const SLOT_POS_X_LEFTMID: Vector2 = Vector2(-SLOT_X_GAP, SLOT_POS_Y)
+const SLOT_POS_X_MID: Vector2 = Vector2(0, SLOT_POS_Y)
+const SLOT_POS_X_RIGHTMID: Vector2 = Vector2(SLOT_X_GAP, SLOT_POS_Y)
+const SLOT_POS_X_RIGHTMOST: Vector2 = Vector2(SLOT_X_GAP * 2, SLOT_POS_Y)
 @onready var test = $Tilemaps/test
 @onready var platformer_player = $Platformer_Player
 @onready var more_traps = $Tilemaps/more_traps
@@ -40,7 +48,6 @@ func _ready():
 		var card = card_scene.instantiate()
 		cards.add_child(card)
 		card.set_effect(buff)
-		print("set card")
 		card.change_scale(1)
 		set_hand(card)
 		card.disable_card()
@@ -93,7 +100,6 @@ func set_hand(card: Node2D):
 			card.rotation_degrees = hand_rotations[i]
 			card.z_index = hand_orderings[i]
 			card.set_active_position(card.position)
-			print("gave card position: " + str(card.position) + " and rotation " + str(hand_rotations[i]) + " with effect " + str(card.get_effect()) + " and ordering " + str(card.z_index))
 			break
 
 func assign_neighbors() -> void:

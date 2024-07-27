@@ -105,8 +105,8 @@ func change_gamestate(state: states):
 			progress_timer.start()
 		states.PLATFORMER:
 			game_state = states.PLATFORMER
-			change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.2)
 			enable_player_control()
+			change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.2)
 		states.GAMEOVER:
 			game_state = states.GAMEOVER
 			print("game over")

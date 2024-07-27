@@ -4,8 +4,6 @@ var has_focus: bool
 var effect_name: String
 @onready var button = $Button
 @onready var sprite = $sprite
-@export var prev_card: Node2D
-@export var next_card: Node2D
 var tween
 var active_position: Vector2
 var inactive_position: Vector2
@@ -14,8 +12,6 @@ var selected: bool = false
 func _ready():
 	has_focus = false
 	enable_card()
-	prev_card = null
-	next_card = null
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
