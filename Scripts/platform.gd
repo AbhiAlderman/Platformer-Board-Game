@@ -8,18 +8,22 @@ var position_two: Vector2
 var moving: bool
 var assigned_lever
 var position_change: Vector2
+var paused: bool
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	position_one = position
 	goal_position = position_one
 	moving = false
 	position_change = Vector2(0, 0)
+	paused = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 	
 func _physics_process(delta):
+	if paused:
+		return
 	if position != goal_position:
 		moving = true
 		if abs(position.x - goal_position.x) < 5:
@@ -68,4 +72,7 @@ func assign_lever(lever) -> void:
 	
 func get_position_changed() -> Vector2:
 	return position_change
+	
+func pause_level(paused_value) -> void:
+	paused = paused_value
 	

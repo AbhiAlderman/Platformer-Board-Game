@@ -9,7 +9,7 @@ func _ready():
 	staticbody.set_collision_layer_value(1, true)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if active:
 		sprite.play("activated")
 		sprite.modulate = Color.html("#ffffff")

@@ -4,14 +4,18 @@ extends CharacterBody2D
 var default_gravity: float = 2200
 var lifted: bool = false
 var default_position: Vector2
+var disabled: bool
 @onready var collision_shape_2d = $CollisionShape2D
 @onready var sprite = $AnimatedSprite2D
 @onready var platform_detector_ray = $PlatformDetectorRay
 
 func _ready():
 	default_position = position
+	disabled = false
 
 func _physics_process(delta):
+	if disabled:
+		return
 	if platform_detector_ray.is_colliding():
 		position += platform_detector_ray.get_collider().get_position_changed() * delta
 		return
@@ -25,10 +29,10 @@ func _process(_delta):
 	else:
 		sprite.play("visible")
 
-func get_gravity():
+func get_gravity() -> float:
 	return default_gravity
 
-func set_lifted(lift_bool: bool):
+func set_lifted(lift_bool: bool) -> void:
 	lifted = lift_bool
 	#change collision layer and mask
 	if lifted:
@@ -36,9 +40,12 @@ func set_lifted(lift_bool: bool):
 	else:
 		collision_shape_2d.disabled = false
 		
-func reset_position():
+func reset_position() -> void:
 	position = default_position
 	set_lifted(false)
 
-func change_gravity(grav: float):
+func change_gravity(grav: float) -> void:
 	default_gravity = grav
+	
+func pause_level(pause_value: bool) -> void:
+	disabled = pause_value

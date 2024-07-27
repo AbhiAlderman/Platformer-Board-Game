@@ -14,6 +14,8 @@ size = Vector2(47, 90)
 z_index = 1
 script = ExtResource("1_f7ox8")
 
+[node name="Level_Info" type="Node" parent="."]
+
 [node name="Tilemaps" type="Node" parent="."]
 
 [node name="default" type="TileMap" parent="Tilemaps"]

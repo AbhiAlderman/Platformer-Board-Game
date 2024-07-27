@@ -133,6 +133,7 @@ size = Vector2(16, 16)
 
 [node name="toggle_block" type="Node2D"]
 z_index = 4
+z_as_relative = false
 script = ExtResource("1_4g6bm")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

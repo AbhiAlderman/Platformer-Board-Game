@@ -4,15 +4,12 @@ extends CharacterBody2D
 #movement
 const DEFAULT_GROUND_SPEED: float = 200
 const DEFAULT_AIR_SPEED: float = 200
-const BOOSTED_GROUND_SPEED: float = 260
-const BOOSTED_AIR_SPEED: float = 260
 const LIFTING_SPEED_PERCENTAGE: float = 0.55
 const STARTUP_SPEED_PERCENTAGE: float = 0.77
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
 const DEFAULT_JUMP_VELOCITY: float = -450.0
-const BOOSTED_JUMP_VELOCITY: float = -550.0
 const DEFAULT_RISE_GRAVITY: float = 1600
 const DEFAULT_FALL_GRAVITY: float = 2200
 const JUMP_HOLD_GRAVITY: float = 600
@@ -21,7 +18,6 @@ const JUMP_HOLD_TIME: float = 0.2
 const COYOTE_TIME: float = 0.08
 const WALL_SLIDE_SPEED: float = 100
 const DEFAULT_WALL_JUMP_VELOCITY: float = -350
-const BOOSTED_WALL_JUMP_VELOCITY: float = -450
 const GLIDE_VELOCITY: float = 150
 #for buffs
 const INTERACT_BUFFER_TIME: float = 0.12
@@ -41,6 +37,8 @@ var enabled_double_jump: bool = false
 var enabled_wall_jump: bool = false
 var enabled_glide: bool = false
 var enabled_traps: bool = false
+var enabled_lift: bool = false
+var enabled_smart: bool = false
 #vars for buffs
 var can_double_jump: bool = true
 var is_wall_sliding: bool = false
@@ -86,6 +84,14 @@ func _process(_delta):
 	animate_player()
 
 func _physics_process(delta):
+	if disabled:
+		if Input.is_action_just_pressed("show_cards"):
+			if get_parent().show_cards(false):
+				disabled = false
+	elif player_state != states.DYING and player_state != states.WINNING:
+		if Input.is_action_just_pressed("show_cards"):
+			if get_parent().show_cards(true):
+				disabled = true
 	if player_state != states.DYING and player_state != states.WINNING and not disabled:
 		handle_gravity(delta)
 		handle_input_buffer(delta)
@@ -289,31 +295,30 @@ func reached_goal() -> void:
 		player_state = states.WINNING
 		get_parent().player_won()
 
-func disable_player_control() -> void:
-	disabled = true
 
-func enable_player_control() -> void:
-	disabled = false
-
-func enable_double_jump() -> void:
-	enabled_double_jump = true	
-
-func enable_wall_jump() -> void:	
-	enabled_wall_jump = true		
-
-func enable_glide() -> void:
-	enabled_glide = true
-
-func enable_traps() -> void:
-	enabled_traps = true
+func pause_level(pause_value: bool) -> void:
+	disabled = pause_value
 	
-func enable_speed_boost() -> void:
-	ground_speed = BOOSTED_GROUND_SPEED
-	air_speed = BOOSTED_AIR_SPEED
+func enable_player_control(value: bool) -> void:
+	disabled = value
 
-func enable_jump_boost() -> void:
-	jump_velocity = BOOSTED_JUMP_VELOCITY
-	wall_jump_velocity = BOOSTED_WALL_JUMP_VELOCITY
+func enable_double_jump(value: bool) -> void:
+	enabled_double_jump = value
+
+func enable_wall_jump(value: bool) -> void:	
+	enabled_wall_jump = value
+
+func enable_glide(value: bool) -> void:
+	enabled_glide = value
+
+func enable_traps(value: bool) -> void:
+	enabled_traps = value
+
+func enable_lift(value: bool) -> void:
+	enabled_lift = value
+	
+func enable_smart(value: bool) -> void:
+	enabled_smart = value
 
 func handle_flip() -> void:
 	if velocity.x > 0:
@@ -323,6 +328,9 @@ func handle_flip() -> void:
 
 func animate_player() -> void:
 	#handle animation logic
+	if disabled:
+		sprite.pause()
+		return
 	handle_flip()
 	match player_state:
 		states.GROUNDED:

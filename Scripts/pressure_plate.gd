@@ -10,18 +10,18 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if pressed:
 		sprite.play("on")
 	else:
 		sprite.play("off")
 
 
-func _on_button_area_area_entered(area):
+func _on_button_area_area_entered(_area):
 	pressed = true
 	button_pressed.emit()
 
 
-func _on_button_area_area_exited(area):
+func _on_button_area_area_exited(_area):
 	pressed = false
 	button_released.emit()
