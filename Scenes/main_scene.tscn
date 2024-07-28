@@ -63,6 +63,7 @@ animations = [{
 
 [node name="Main_Scene" type="Node2D"]
 script = ExtResource("1_8wvd0")
+starting_level_number = 4
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
@@ -74,7 +75,7 @@ offset_top = -609.0
 offset_right = -1076.0
 offset_bottom = -569.0
 scale = Vector2(57.3141, 47.9141)
-color = Color(0.301961, 0.168627, 0.196078, 1)
+color = Color(0.0352941, 0.0392157, 0.0784314, 1)
 
 [node name="Progress" type="Node" parent="."]
 

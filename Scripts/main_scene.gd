@@ -5,12 +5,16 @@ const CAMERA_ZOOM_PLATFORMER: Vector2 = Vector2(1.7, 1.7)
 const CAMERA_ZOOM_CARDS: Vector2 = Vector2(0.48, 0.48)
 const CAMERA_POSITION_MAP: Vector2 = Vector2(0, 0)
 const CAMERA_POSITION_PLATFORMER: Vector2 = Vector2(0, 0)
+const LEVEL_PREPATH: String = "res://Scenes/levels/level_"
+
+@onready var camera = $Camera
+@onready var progress_timer = $Progress/Progress_Timer
+@onready var progress_sprite = $Progress/ProgressSprite
+@export var starting_level_number: int
 
 var level_template = preload("res://Scenes/level_template.tscn")
-var level_one = preload("res://Scenes/level_one.tscn")
-var level_two = preload("res://Scenes/level_two.tscn")
-var level_three = preload("res://Scenes/level_three.tscn")
 var current_level_number: int
+var current_level_scene: PackedScene
 var current_level_node
 var tween: Tween
 var game_state: states 
@@ -20,30 +24,22 @@ enum states {
 	GAMEOVER #game over
 }
 
-@onready var camera = $Camera
-@onready var progress_timer = $Progress/Progress_Timer
-@onready var progress_sprite = $Progress/ProgressSprite
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	current_level_number = 1
+	update_current_level_number(starting_level_number)
 	change_gamestate(states.MAP)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	pass
+
+func update_current_level_number(new_value: int) -> void:
+	current_level_number = new_value
+	current_level_scene = load(LEVEL_PREPATH + str(current_level_number) + ".tscn")
+	
 func load_level():
 	#load the current platformer level
-	match current_level_number:
-		1:
-			current_level_node = level_one.instantiate()
-		2:
-			current_level_node = level_two.instantiate()
-		3:
-			current_level_node = level_three.instantiate()
-		_:
-			print("made it to some other level")
-			return
+	current_level_node = current_level_scene.instantiate()
 	add_child(current_level_node)
 	current_level_node.on_player_won.connect(player_won)
 	current_level_node.on_player_death.connect(player_died)
@@ -53,33 +49,26 @@ func load_level():
 
 func player_died():
 	#change the level
-	await get_tree().create_timer(1.2).timeout
+	await get_tree().create_timer(0.3).timeout
 	current_level_node.queue_free()
-	#current_level_number += 1
 	load_level()
 	change_gamestate(states.PLATFORMER)
+	
 
 func player_won(player_position: Vector2):
-	#change the level
+	#zoom on player celebration
 	change_camera_position(player_position, 0)
 	change_camera_zoom(Vector2(2.5, 2.5), 0.2)
 	await get_tree().create_timer(2.3).timeout
+	#change the level
 	current_level_node.queue_free()
 	#current_level_number += 1
-	load_level()
-	current_level_number += 1
-	current_level_node.queue_free()
+	update_current_level_number(current_level_number + 1)
 	change_gamestate(states.MAP)
 
 func kill_player():
 	current_level_node.kill_player()
 
-func disable_player_control():
-	current_level_node.enable_player_control(false)
-	
-func enable_player_control():
-	current_level_node.enable_player_control(true)
-	
 func is_platforming() -> bool:
 	return game_state == states.PLATFORMER
 
@@ -105,7 +94,6 @@ func change_gamestate(state: states):
 		states.PLATFORMER:
 			progress_sprite.play("invisible")
 			game_state = states.PLATFORMER
-			enable_player_control()
 			change_camera_position(CAMERA_POSITION_PLATFORMER, 0.05)
 			change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.2)
 		states.GAMEOVER:

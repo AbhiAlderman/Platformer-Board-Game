@@ -33,7 +33,8 @@ var rise_gravity: float = DEFAULT_RISE_GRAVITY
 var ground_speed: float = DEFAULT_GROUND_SPEED
 var air_speed: float = DEFAULT_AIR_SPEED
 var jump_velocity: float = DEFAULT_JUMP_VELOCITY
-var disabled: bool = true
+var control_disabled: bool = false
+var paused: bool = false
 #possible player buffs
 var enabled_double_jump: bool = false
 var enabled_wall_jump: bool = false
@@ -45,7 +46,6 @@ var enabled_smart: bool = false
 var can_double_jump: bool = true
 var is_wall_sliding: bool = false
 var wall_jumping: bool = false
-var flipping: bool = false
 var current_wall_direction: String = ""
 var last_wall_direction: String = ""
 var wall_jump_velocity: float = DEFAULT_WALL_JUMP_VELOCITY
@@ -58,6 +58,7 @@ var interact_buffer_time_left: float = 0.0
 var lifted_box = null
 var moved_by_platform: bool = false
 var platform: StaticBody2D
+var old_velocity: Vector2
 enum states {
 	GROUNDED,
 	AIRBORNE,
@@ -77,43 +78,56 @@ enum states {
 
 signal player_died
 signal player_won
+signal player_restart
 
 func _ready():
 	player_state = states.AIRBORNE
 	coyote_time_left = COYOTE_TIME
 	jump_buffer_time_left = JUMP_BUFFER_TIME
 	player_spawn_point = position
-	disabled = false
 	collision_shape_2d.disabled = false
 	
 func _process(_delta):
 	animate_player()
 
 func _physics_process(delta):
-	if player_state == states.WINNING:
-		velocity.y += DEFAULT_FALL_GRAVITY * delta
-		velocity.x = 0
-		move_and_slide()
-		return
-	if disabled:
-		if Input.is_action_just_pressed("show_cards"):
-			if get_parent().show_cards(false):
-				disabled = false
-	elif player_state != states.DYING:
-		if Input.is_action_just_pressed("show_cards"):
-			if get_parent().show_cards(true):
-				disabled = true
-	if player_state != states.DYING and not disabled:
-		handle_gravity(delta)
-		handle_input_buffer(delta)
-		handle_jump()
-		handle_inputs()
-		handle_movement()
-		move_and_slide()
-		if lifting:
-			lifted_box.position = position
-		if moved_by_platform and platform:
-			position += platform.get_collider().get_position_changed() * delta
+	match player_state:
+		states.WINNING:
+			velocity.y += DEFAULT_FALL_GRAVITY * delta
+			velocity.x = 0
+			move_and_slide()
+		states.DYING:
+			velocity.y = 0
+			velocity.x = 0
+			move_and_slide()
+		_:
+			if control_disabled:
+				return
+			if paused:
+				if Input.is_action_just_pressed("restart"):
+					player_restart.emit()
+				if Input.is_action_just_pressed("show_cards"):
+					if get_parent().show_cards(false):
+						paused = false
+						velocity = old_velocity
+						if velocity.y > 0:
+							velocity.y *= 0.5
+			else:
+				if Input.is_action_just_pressed("show_cards"):
+					if get_parent().show_cards(true):
+						paused = true
+						old_velocity = velocity
+			if not paused:
+				handle_gravity(delta)
+				handle_input_buffer(delta)
+				handle_jump()
+				handle_inputs()
+				handle_movement()
+				move_and_slide()
+				if lifting:
+					lifted_box.position = position
+				if moved_by_platform and platform:
+					position += platform.get_collider().get_position_changed() * delta
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -123,14 +137,13 @@ func get_gravity() -> float:
 func handle_gravity(delta) -> void:
 	if not is_on_floor() and not moved_by_platform:
 		coyote_time_left -= delta
-		if is_on_wall() and enabled_wall_jump and velocity.y >= 0 and not lifting:
+		if is_on_wall() and enabled_wall_jump and velocity.y >= -30 and not lifting:
 			#wall slide
 			current_wall_direction = wall_direction()
 			if (current_wall_direction == "left" and Input.is_action_pressed("left") or 
 				current_wall_direction == "right" and Input.is_action_pressed("right")):
 				#player holding wall slide direction, apply wall slide gravity
 				is_wall_sliding = true
-				flipping = false
 				velocity.y = WALL_SLIDE_SPEED
 				player_state = states.WALL_SLIDE
 			else:
@@ -157,7 +170,6 @@ func handle_gravity(delta) -> void:
 		jump_time = 0.0
 		coyote_time_left = COYOTE_TIME
 		is_wall_sliding = false
-		flipping = false
 		can_double_jump = true
 
 func wall_direction() -> String:
@@ -217,7 +229,7 @@ func handle_inputs() -> void:
 						lifting = true
 						lifted_box = rightray.get_collider()
 						lifted_box.set_lifted(true)
-					elif rightray.get_collider().is_in_group("lever"):
+					elif rightray.get_collider().is_in_group("lever") and enabled_smart:
 						#player is trying to toggle a lever
 						rightray.get_collider().toggle()
 				interact_buffer_time_left = 0
@@ -230,7 +242,7 @@ func handle_inputs() -> void:
 						lifting = true
 						lifted_box = leftray.get_collider()
 						lifted_box.set_lifted(true)
-					elif leftray.get_collider().is_in_group("lever"):
+					elif leftray.get_collider().is_in_group("lever") and enabled_smart:
 						#player is trying to toggle a lever
 						leftray.get_collider().toggle()
 				interact_buffer_time_left = 0
@@ -312,10 +324,10 @@ func reached_goal() -> void:
 
 
 func pause_level(pause_value: bool) -> void:
-	disabled = pause_value
+	paused = pause_value
 	
 func enable_player_control(value: bool) -> void:
-	disabled = not value
+	control_disabled = not value
 
 func enable_double_jump(value: bool) -> void:
 	enabled_double_jump = value
@@ -355,8 +367,7 @@ func handle_flip() -> void:
 
 func animate_player() -> void:
 	#handle animation logic
-	if disabled:
-		sprite.pause()
+	if control_disabled:
 		return
 	handle_flip()
 	match player_state:
@@ -409,9 +420,12 @@ func _on_area_area_entered(area):
 		area.get_parent().grab_coin()
 		reached_goal()
 
-func _on_dying_timer_timeout():
+func kill_player():
 	player_died.emit()
 	queue_free()
+	
+func _on_dying_timer_timeout():
+	kill_player()
 
 func _on_wall_jump_timer_timeout():
 	wall_jumping = false

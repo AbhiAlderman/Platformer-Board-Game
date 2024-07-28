@@ -23,13 +23,12 @@ const SLOT_POS_X_RIGHTMOST: Vector2 = Vector2(SLOT_X_GAP * 2, SLOT_POS_Y)
 @onready var test = $Tilemaps/test
 @onready var platformer_player = $Platformer_Player
 @onready var more_traps = $Tilemaps/more_traps
-@onready var pressure_plate = $Button/Pressure_Plate
-@onready var toggle_blocks = $Button/Toggle_Blocks
 @onready var boxes = $Boxes
 @onready var platforms_and_levers = $Platforms_and_Levers
 @onready var cards = $Cards
 @onready var card_slots = $Card_Slots
 @onready var creatures = $Creatures
+@onready var plates_and_walls = $Plates_and_Walls
 
 @export var buffs: PackedStringArray
 @export var debuffs: PackedStringArray
@@ -46,17 +45,22 @@ var slot_array: Array = []
 var selected_card: Node2D = null
 var moving_card_menu: bool = false
 var current_effects: PackedStringArray = []
+var pressure_plate: Node2D
 
 signal on_player_death
 signal on_player_won
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	enable_player_control(false)
 	platformer_player.player_died.connect(player_died)
 	platformer_player.player_won.connect(player_won)
+	platformer_player.player_restart.connect(restart_level)
 	more_traps.visible = false
 	load_card_slots()
 	load_player_cards()
 	load_level_interactables()
+	await get_tree().create_timer(0.235).timeout
+	enable_player_control(true)
 
 func load_card_slots():
 	var start_x: float 
@@ -112,10 +116,15 @@ func load_player_cards():
 	assign_neighbors()
 
 func load_level_interactables():
-	for block in toggle_blocks.get_children():
-		block.active = true
-		pressure_plate.button_pressed.connect(block.on_plate_pressed)
-		pressure_plate.button_released.connect(block.on_plate_released)
+	for child in plates_and_walls.get_children():
+		if child.name == "Pressure_Plate":
+			#child is the pressure plate
+			pressure_plate = child
+			continue
+		#child is the toggleable wall
+		child.active = true
+		pressure_plate.button_pressed.connect(child.on_plate_pressed)
+		pressure_plate.button_released.connect(child.on_plate_released)
 	for platform_bundle in platforms_and_levers.get_children():
 		var platform
 		var lever
@@ -132,7 +141,7 @@ func load_level_interactables():
 				"Position2":
 					markertwo = child
 				_:
-					print("invalid child of platform bundle")
+					continue
 		platform.assign_positions(markerone.position, markertwo.position)
 		platform.assign_lever(lever)
 		lever.toggled.connect(platform.switch_position)
@@ -241,7 +250,8 @@ func slot_selected(slot: Node2D) -> void:
 		assign_neighbors()
 	if num_player_cards == 0:
 		#no more cards in hand
-		pause_level(false)
+		slot_array[0].grab_focus()
+		slot_array[0].release_focus()
 	elif num_player_cards == 1:
 		hand_map.values()[0].grab_focus()
 	else:
@@ -287,6 +297,9 @@ func enable_traps(value: bool) -> void:
 
 func enable_lift(value: bool) -> void:
 	platformer_player.enable_lift(value)
+	
+func enable_smart(value: bool) -> void:
+	platformer_player.enable_smart(value)
 
 func pause_level(pause_value: bool) -> void:
 	if pause_value:
@@ -326,6 +339,11 @@ func pause_level(pause_value: bool) -> void:
 	for creature in creatures.get_children():
 		creature.pause_level(pause_value)
 
+func restart_level() -> void:
+	pause_level(false)
+	enable_player_control(false)
+	platformer_player.kill_player()
+
 func handle_effects() -> void:
 	var new_effects: PackedStringArray = []
 	for slot in slot_array:
@@ -355,5 +373,7 @@ func enable_effect(effect_name: String, value: bool) -> void :
 					enable_lift(value)
 				"spike":
 					enable_traps(value)
+				"smart":
+					enable_smart(value)
 				_:
 					print("INVALID EFFECT")

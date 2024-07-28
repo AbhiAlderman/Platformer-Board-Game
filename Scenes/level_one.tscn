@@ -123,21 +123,19 @@ position = Vector2(1.5625, 0.761244)
 scale = Vector2(0.9375, 1.19707)
 shape = SubResource("RectangleShape2D_f38rm")
 
-[node name="Button" type="Node" parent="."]
+[node name="Plates_and_Walls" type="Node" parent="."]
 
-[node name="Pressure_Plate" parent="Button" instance=ExtResource("5_0whoa")]
+[node name="Pressure_Plate" parent="Plates_and_Walls" instance=ExtResource("5_0whoa")]
 position = Vector2(-68, 192)
 
-[node name="Toggle_Blocks" type="Node" parent="Button"]
-
-[node name="toggle_block" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
+[node name="toggle_block" parent="Plates_and_Walls" instance=ExtResource("6_dtno7")]
 position = Vector2(79, 112)
 
-[node name="toggle_block2" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
-position = Vector2(79, 128)
-
-[node name="toggle_block3" parent="Button/Toggle_Blocks" instance=ExtResource("6_dtno7")]
+[node name="toggle_block3" parent="Plates_and_Walls" instance=ExtResource("6_dtno7")]
 position = Vector2(79, 144)
+
+[node name="toggle_block2" parent="Plates_and_Walls" instance=ExtResource("6_dtno7")]
+position = Vector2(79, 128)
 
 [node name="KillZone" type="Area2D" parent="." groups=["killbox"]]
 position = Vector2(-1, -112)
