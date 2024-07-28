@@ -166,8 +166,8 @@ script = ExtResource("1_4g6bm")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 show_behind_parent = true
 sprite_frames = SubResource("SpriteFrames_vweva")
-animation = &"deactivated"
-frame_progress = 0.36835
+animation = &"activated"
+frame_progress = 0.879311
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 visible = false

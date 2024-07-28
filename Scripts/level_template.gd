@@ -45,6 +45,7 @@ var hand_map: Dictionary = {}
 var slot_array: Array = []
 var selected_card: Node2D = null
 var moving_card_menu: bool = false
+var current_effects: PackedStringArray = []
 
 signal on_player_death
 signal on_player_won
@@ -263,7 +264,7 @@ func player_died() -> void:
 	on_player_death.emit()
 
 func player_won() -> void:
-	on_player_won.emit()
+	on_player_won.emit(platformer_player.position)
 
 func kill_player() -> void:
 	platformer_player.die()
@@ -326,29 +327,33 @@ func pause_level(pause_value: bool) -> void:
 		creature.pause_level(pause_value)
 
 func handle_effects() -> void:
-	enable_double_jump(false)
-	enable_wall_jump(false)
-	enable_glide(false)
-	enable_lift(false)
-	enable_traps(false)
+	var new_effects: PackedStringArray = []
 	for slot in slot_array:
 		if slot.get_card() != null:
-			match slot.get_card().get_effect():
-				"double_jump":
-					enable_double_jump(true)
-				"wall_jump":
-					enable_wall_jump(true)
-				"glide":
-					enable_glide(true)
-				"lift":
-					enable_lift(true)
-				"spike":
-					enable_traps(true)
-				_:
-					print("INVALID EFFECT")
+			new_effects.append(slot.get_card().get_effect())
+			enable_effect(slot.get_card().get_effect(), true)
+	for effect in current_effects:
+		if !new_effects.has(effect):
+			enable_effect(effect, false)
+	current_effects = new_effects
 
 func show_cards(value: bool) -> bool:
 	if get_parent().is_platforming() and not moving_card_menu:
 		pause_level(value)
 		return true
 	return false
+
+func enable_effect(effect_name: String, value: bool) -> void :
+	match effect_name:
+				"double_jump":
+					enable_double_jump(value)
+				"wall_jump":
+					enable_wall_jump(value)
+				"glide":
+					enable_glide(value)
+				"lift":
+					enable_lift(value)
+				"spike":
+					enable_traps(value)
+				_:
+					print("INVALID EFFECT")

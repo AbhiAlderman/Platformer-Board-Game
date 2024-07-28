@@ -5,7 +5,6 @@ const CAMERA_ZOOM_PLATFORMER: Vector2 = Vector2(1.7, 1.7)
 const CAMERA_ZOOM_CARDS: Vector2 = Vector2(0.48, 0.48)
 const CAMERA_POSITION_MAP: Vector2 = Vector2(0, 0)
 const CAMERA_POSITION_PLATFORMER: Vector2 = Vector2(0, 0)
-const CAMERA_POSITION_CARDS: Vector2 = Vector2(0, 30)
 
 var level_template = preload("res://Scenes/level_template.tscn")
 var level_one = preload("res://Scenes/level_one.tscn")
@@ -60,9 +59,11 @@ func player_died():
 	load_level()
 	change_gamestate(states.PLATFORMER)
 
-func player_won():
+func player_won(player_position: Vector2):
 	#change the level
-	await get_tree().create_timer(1.6).timeout
+	change_camera_position(player_position, 0)
+	change_camera_zoom(Vector2(2.5, 2.5), 0.2)
+	await get_tree().create_timer(2.3).timeout
 	current_level_node.queue_free()
 	#current_level_number += 1
 	load_level()
@@ -87,12 +88,17 @@ func change_camera_zoom(zoom_level: Vector2, time: float):
 	tween.tween_property(camera, "zoom", zoom_level, time)
 	await get_tree().create_timer(time).timeout
 
+func change_camera_position(new_position: Vector2, time: float):
+	tween = create_tween()
+	tween.tween_property(camera, "position", new_position, time)
+	await get_tree().create_timer(time).timeout
 
 func change_gamestate(state: states):
 	tween = create_tween()
 	match state:
 		states.MAP:
 			game_state = states.MAP
+			change_camera_position(CAMERA_POSITION_MAP, 0.05)
 			change_camera_zoom(CAMERA_ZOOM_MAP, 0.2)
 			progress_timer.start()
 			progress_sprite.play("visible")
@@ -100,6 +106,7 @@ func change_gamestate(state: states):
 			progress_sprite.play("invisible")
 			game_state = states.PLATFORMER
 			enable_player_control()
+			change_camera_position(CAMERA_POSITION_PLATFORMER, 0.05)
 			change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.2)
 		states.GAMEOVER:
 			progress_sprite.play("invisible")

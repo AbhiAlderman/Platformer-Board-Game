@@ -39,7 +39,7 @@ script = ExtResource("1_6gs1w")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_q8icc")
-animation = &"off"
+animation = &"on"
 
 [node name="button_area" type="Area2D" parent="."]
 position = Vector2(0, -12)

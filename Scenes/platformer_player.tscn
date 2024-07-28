@@ -950,7 +950,7 @@ script = ExtResource("1_l4e1b")
 position = Vector2(0, -2)
 scale = Vector2(1.1, 1.1)
 sprite_frames = SubResource("SpriteFrames_s0uty")
-animation = &"idle_box"
+animation = &"winning"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0.5, 2.74757)

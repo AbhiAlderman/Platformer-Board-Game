@@ -45,7 +45,7 @@ script = ExtResource("1_ayoep")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, 8)
 sprite_frames = SubResource("SpriteFrames_6e3xt")
-animation = &"blue"
+animation = &"purple"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
