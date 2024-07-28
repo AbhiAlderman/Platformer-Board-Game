@@ -11,12 +11,10 @@ var level_template = preload("res://Scenes/level_template.tscn")
 var level_one = preload("res://Scenes/level_one.tscn")
 var level_two = preload("res://Scenes/level_two.tscn")
 var level_three = preload("res://Scenes/level_three.tscn")
-var card_scene = preload("res://Scenes/card.tscn")
 var current_level_number: int
 var current_level_node
 var tween: Tween
 var game_state: states 
-var showing_cards: bool
 enum states {
 	MAP, #the worldmap the player is moving through to progress
 	PLATFORMER, #the actual platformer game
@@ -32,7 +30,6 @@ enum states {
 func _ready():
 	current_level_number = 1
 	change_gamestate(states.MAP)
-	showing_cards = false
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	match game_state:

@@ -99,6 +99,7 @@ size = Vector2(47, 90)
 z_index = 1
 script = ExtResource("1_syusw")
 buffs = PackedStringArray("lift", "wall_jump", "glide", "spike", "double_jump")
+num_card_slots = 3
 
 [node name="Tilemaps" type="Node" parent="."]
 

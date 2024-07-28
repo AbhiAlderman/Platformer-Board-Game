@@ -1,6 +1,8 @@
 extends Node2D
 
 signal on_player_death
+const CAMERA_ZOOM_PLATFORMER: Vector2 = Vector2(1.7, 1.7)
+const CAMERA_ZOOM_CARDS: Vector2 = Vector2(1.6, 1.6)
 const HAND_LIMIT: int = 5
 const HAND_EVEN_LEFTMOST: Vector2 =  Vector2(-82, 124)
 const HAND_EVEN_LEFTMID: Vector2 = Vector2(-30, 110)
@@ -34,15 +36,54 @@ const SLOT_POS_X_RIGHTMOST: Vector2 = Vector2(SLOT_X_GAP * 2, SLOT_POS_Y)
 @export var num_card_slots: int
 
 var card_scene = preload("res://Scenes/card.tscn")
-
+var card_slot_scene = preload("res://Scenes/slot.tscn")
 var num_player_cards: int
 var hand_positions: PackedVector2Array = []
 var hand_rotations: PackedInt32Array = []
 var hand_orderings: PackedInt32Array = []
 var hand_map: Dictionary = {}
+var slot_array: Array = []
+var selected_card: Node2D = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	more_traps.visible = false
+	load_card_slots()
+	load_player_cards()
+	load_level_interactables()
+
+func load_card_slots():
+	var start_x: float 
+	match num_card_slots:
+		1:
+			start_x = SLOT_POS_X_MID.x
+		2:
+			start_x = SLOT_POS_X_LEFTMID.x + (SLOT_X_GAP / 2)
+		3:
+			start_x = SLOT_POS_X_LEFTMID.x
+		4:
+			start_x = SLOT_POS_X_LEFTMOST.x + (SLOT_X_GAP / 2)
+		5:
+			start_x = SLOT_POS_X_LEFTMOST.x
+		_:
+			print("INVALID NUMBER OF CARD SLOTS")
+			return
+	
+	var prev_slot
+	for i in range(num_card_slots):
+		var slot = card_slot_scene.instantiate()
+		card_slots.add_child(slot)
+		slot.position = Vector2(start_x + i * SLOT_X_GAP, SLOT_POS_Y)
+		if prev_slot:
+			prev_slot.set_right_neighbor(slot.get_button_path())
+			slot.set_left_neighbor(prev_slot.get_button_path())
+		slot.set_active_position(slot.position)
+		slot_array.append(slot)
+		slot.disable_slot()
+		slot.z_index = 20
+		slot.slot_selected.connect(slot_selected)
+		prev_slot = slot
+	
+func load_player_cards():
 	num_player_cards = buffs.size()
 	for buff in buffs:
 		var card = card_scene.instantiate()
@@ -51,7 +92,10 @@ func _ready():
 		card.change_scale(1)
 		set_hand(card)
 		card.disable_card()
+		card.card_selected.connect(card_selected)
 	assign_neighbors()
+
+func load_level_interactables():
 	for block in toggle_blocks.get_children():
 		block.active = true
 		pressure_plate.button_pressed.connect(block.on_plate_pressed)
@@ -118,16 +162,23 @@ func assign_neighbors() -> void:
 		if curr_card == null:
 			continue
 		if prev_card == null:
-			curr_card.get_child(0).focus_neighbor_left = ""
+			curr_card.set_left_neighbor("")
 		else:
-			curr_card.get_child(0).focus_neighbor_left = prev_card.get_child(0).get_path()
-			prev_card.get_child(0).focus_neighbor_right = curr_card.get_child(0).get_path()
-		curr_card.get_child(0).focus_neighbor_right = ""
-		curr_card.get_child(0).grab_focus()
+			curr_card.set_left_neighbor(prev_card.get_button_path())
+			prev_card.set_right_neighbor(curr_card.get_button_path())
+		curr_card.set_right_neighbor("")
+		curr_card.grab_focus()
 		prev_card = curr_card
 		
 func card_selected(card: Node2D) -> void:
-	pass
+	selected_card = card
+	for c in hand_map.values():
+		if c != card:
+			c.disable_selecting()
+	slot_array[0].grab_focus()
+	
+func slot_selected(slot: Node2D) -> void:
+	print("SLOT SELECTED!")
 	
 func player_died() -> void:
 	get_parent().player_died()
@@ -156,11 +207,17 @@ func enable_traps(value: bool) -> void:
 
 func pause_level(pause_value: bool) -> void:
 	if pause_value:
+		get_parent().change_camera_zoom(CAMERA_ZOOM_CARDS, 0.1)
 		for card in cards.get_children():
 			card.enable_card()
+		for slot in card_slots.get_children():
+			slot.enable_slot()
 	else:
+		get_parent().change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.1)
 		for card in cards.get_children():
 			card.disable_card()
+		for slot in card_slots.get_children():
+			slot.disable_slot()
 	platformer_player.pause_level(pause_value)
 	for box in boxes.get_children():
 		box.pause_level(pause_value)
@@ -175,97 +232,3 @@ func show_cards(value: bool) -> bool:
 		pause_level(value)
 		return true
 	return false
-
-#func load_cards():
-	##load cards, set focus neighbors
-	##NEED TO UPDATE so that cards are not random
-	#var previous_card
-	#var temp_effects: Array = possible_buffs.duplicate()
-	#temp_effects.shuffle()
-	#for i in card_positions:
-		#var card = card_scene.instantiate()
-		#add_child(card)
-		#card.position = i
-		#card.enable_card()
-		#if previous_card:
-			#previous_card.get_child(0).focus_neighbor_right = card.get_child(0).get_path()
-			#previous_card.next_card = card
-			#card.get_child(0).focus_neighbor_left = previous_card.get_child(0).get_path()
-			#card.prev_card = previous_card
-		#else:
-			#card.get_child(0).grab_focus()
-		#cards.append(card)
-		#previous_card = card
-		#card.set_effect(temp_effects.pop_front())
-	#
-	
-	
-#func card_selected(card):
-	#tween = create_tween()
-	#tween.tween_property(card, "position", Vector2(0, 0), 0.6)
-	#await get_tree().create_timer(2).timeout
-	#if card.next_card != null:
-		#var prev_card = card.prev_card
-		#card.next_card.prev_card = prev_card
-		#if prev_card != null:
-			#card.next_card.get_child(0).focus_neighbor_left = prev_card.get_child(0).get_path()
-		#else:
-			#card.next_card.get_child(0).focus_neighbor_left = ""
-	#if card.prev_card != null:
-		#var next_card = card.next_card
-		#card.prev_card.next_card = next_card
-		#if next_card != null:
-			#card.prev_card.get_child(0).focus_neighbor_right = next_card.get_child(0).get_path()
-		#else:
-			#card.prev_card.get_child(0).focus_neighbor_right = ""
-	#effects.append(card.get_effect())
-	#print(card.get_effect())
-	#card.queue_free()
-	#match card.position.x:
-		#-500:
-			#cards[0] = null
-		#-250:
-			#cards[1] = null
-		#0:
-			#cards[2] = null
-		#250:
-			#cards[3] = null
-		#500:
-			#cards[4] = null
-	#change_gamestate(states.PLATFORMER)
-	
-#func handle_effects():
-	##handle the card effect here
-	#for i in range(effects.size()):
-		#match effects[i]:
-			#"double_jump":
-				#current_level_node.enable_double_jump()
-			#"wall_jump":
-				#current_level_node.enable_wall_jump()
-			#"glide":
-				#current_level_node.enable_glide()
-			#"speed":
-				#current_level_node.enable_speed_boost()
-			#"jump_boost":
-				#current_level_node.enable_jump_boost()
-			#"traps":
-				#current_level_node.enable_traps()
-			#"more_time":
-				#current_time_limit += 10
-			#"less_time":
-				#current_time_limit -= 10
-			#_:
-				#print("invalid effect")
-
-#loop for changing to platformer
-#for c in cards:
-				#if c != null:
-					#c.disable_card()
-
-#loop for changing to card menu
-			#for c in cards:
-				#if c != null:
-					#c.enable_card()
-					#if not foundfirst:
-						#c.get_child(0).grab_focus()
-						#foundfirst = true
