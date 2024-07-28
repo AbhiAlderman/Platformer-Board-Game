@@ -3,35 +3,35 @@
 [ext_resource type="Script" path="res://Scripts/pressure_plate.gd" id="1_6gs1w"]
 [ext_resource type="Texture2D" uid="uid://ck5geoy4pcacw" path="res://Assets/level/interactables/button_sheet.png" id="1_e5g7h"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_4a40s"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_dss87"]
 atlas = ExtResource("1_e5g7h")
-region = Rect2(0, 0, 16, 19)
+region = Rect2(0, 0, 32, 32)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ol85u"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ch8jl"]
 atlas = ExtResource("1_e5g7h")
-region = Rect2(16, 0, 16, 19)
+region = Rect2(32, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q8icc"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_4a40s")
+"texture": SubResource("AtlasTexture_dss87")
 }],
-"loop": true,
+"loop": false,
 "name": &"off",
-"speed": 5.0
+"speed": 1.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ol85u")
+"texture": SubResource("AtlasTexture_ch8jl")
 }],
-"loop": true,
+"loop": false,
 "name": &"on",
-"speed": 5.0
+"speed": 1.0
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pvh2u"]
-size = Vector2(14, 4)
+size = Vector2(16, 4)
 
 [node name="Pressure_Plate" type="Node2D"]
 z_index = 4
@@ -42,7 +42,7 @@ sprite_frames = SubResource("SpriteFrames_q8icc")
 animation = &"off"
 
 [node name="button_area" type="Area2D" parent="."]
-position = Vector2(0, -19)
+position = Vector2(0, -12)
 collision_layer = 2
 collision_mask = 2
 

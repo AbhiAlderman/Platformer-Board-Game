@@ -3,14 +3,15 @@
 [ext_resource type="Script" path="res://Scripts/level_template.gd" id="1_syusw"]
 [ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="2_50ai3"]
 [ext_resource type="Texture2D" uid="uid://boyor34ca4mar" path="res://Assets/level/spike.png" id="3_or23n"]
-[ext_resource type="Texture2D" uid="uid://b0wf616yax7y5" path="res://Assets/level/image.png" id="3_pw5xr"]
 [ext_resource type="TileSet" uid="uid://dxdh1j4y2hswa" path="res://Assets/Tileset/testing.tres" id="4_p2e4v"]
 [ext_resource type="PackedScene" uid="uid://dbbov6pfmwlkq" path="res://Scenes/pressure_plate.tscn" id="5_0whoa"]
 [ext_resource type="PackedScene" uid="uid://cykfgvctbr55c" path="res://Scenes/platform.tscn" id="5_iqujq"]
 [ext_resource type="PackedScene" uid="uid://bycv6kbtt4nef" path="res://Scenes/trapzone.tscn" id="5_kndi3"]
 [ext_resource type="PackedScene" uid="uid://dynfyew20a8me" path="res://Scenes/toggle_block.tscn" id="6_dtno7"]
 [ext_resource type="PackedScene" uid="uid://d2k47elvdnwro" path="res://Scenes/box.tscn" id="9_bfouy"]
+[ext_resource type="PackedScene" uid="uid://dqciwxg0g6ov4" path="res://Scenes/goal.tscn" id="11_aw6kh"]
 [ext_resource type="PackedScene" uid="uid://cq3vvtt1q57ga" path="res://Scenes/lever.tscn" id="11_kfc6r"]
+[ext_resource type="PackedScene" uid="uid://b1gjaf3odv74p" path="res://Scenes/creature.tscn" id="12_uw6nu"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4ewyu"]
 texture = ExtResource("3_or23n")
@@ -92,13 +93,10 @@ size = Vector2(20, 27.7262)
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vhwcq"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hhev5"]
-size = Vector2(47, 90)
-
 [node name="level_one" type="Node2D"]
 z_index = 1
 script = ExtResource("1_syusw")
-buffs = PackedStringArray("lift", "wall_jump", "glide", "spike", "double_jump")
+buffs = PackedStringArray("lift", "double_jump", "glide", "wall_jump", "spike")
 num_card_slots = 3
 
 [node name="Tilemaps" type="Node" parent="."]
@@ -128,7 +126,7 @@ shape = SubResource("RectangleShape2D_f38rm")
 [node name="Button" type="Node" parent="."]
 
 [node name="Pressure_Plate" parent="Button" instance=ExtResource("5_0whoa")]
-position = Vector2(-68, 199)
+position = Vector2(-68, 192)
 
 [node name="Toggle_Blocks" type="Node" parent="Button"]
 
@@ -150,32 +148,15 @@ collision_mask = 2
 position = Vector2(0, 325)
 shape = SubResource("WorldBoundaryShape2D_vhwcq")
 
-[node name="Goal" type="Node2D" parent="."]
-z_index = 2
-position = Vector2(322, 137)
-
-[node name="Sprite2D" type="Sprite2D" parent="Goal"]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("3_pw5xr")
-
-[node name="Area2D" type="Area2D" parent="Goal" groups=["goal"]]
-collision_layer = 2
-collision_mask = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Goal/Area2D"]
-position = Vector2(-0.5, 0)
-shape = SubResource("RectangleShape2D_hhev5")
-
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -386.0
-offset_top = -224.0
-offset_right = -356.0
-offset_bottom = -193.0
-scale = Vector2(25.7474, 14.5297)
+offset_left = -378.0
+offset_top = -219.0
+offset_right = -348.0
+offset_bottom = -188.0
+scale = Vector2(25.2274, 14.0897)
 color = Color(0.341176, 0.447059, 0.466667, 1)
 
 [node name="Platformer_Player" parent="." instance=ExtResource("2_50ai3")]
-z_index = 4
 position = Vector2(-330, -82)
 
 [node name="Boxes" type="Node" parent="."]
@@ -194,11 +175,19 @@ position = Vector2(1, 0)
 position = Vector2(-115, 192)
 
 [node name="Position1" type="Marker2D" parent="Platforms_and_Levers/Platform_One"]
-position = Vector2(0, 77)
+position = Vector2(0, -103)
 
 [node name="Position2" type="Marker2D" parent="Platforms_and_Levers/Platform_One"]
-position = Vector2(0, 201)
+position = Vector2(0, 192)
 
 [node name="Cards" type="Node" parent="."]
 
 [node name="Card_Slots" type="Node" parent="."]
+
+[node name="goal" parent="." instance=ExtResource("11_aw6kh")]
+position = Vector2(330, 170)
+
+[node name="Creatures" type="Node" parent="."]
+
+[node name="creature" parent="Creatures" instance=ExtResource("12_uw6nu")]
+position = Vector2(283, 172)

@@ -1,0 +1,117 @@
+[gd_scene load_steps=14 format=3 uid="uid://b1gjaf3odv74p"]
+
+[ext_resource type="Script" path="res://Scripts/creature.gd" id="1_5wnh4"]
+[ext_resource type="Texture2D" uid="uid://78fhnfx1b45w" path="res://Assets/npcs/luh_jit-Sheet.png" id="2_md8nj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q3gc2"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_81egd"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v2m7l"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wks31"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bbbmd"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_48w3g"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coq7s"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tv3l0"]
+atlas = ExtResource("2_md8nj")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_7fb36"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q3gc2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_81egd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v2m7l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wks31")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bbbmd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_48w3g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coq7s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tv3l0")
+}],
+"loop": true,
+"name": &"run",
+"speed": 14.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vpqcm"]
+radius = 3.21955
+height = 12.8782
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5m5un"]
+radius = 7.63889
+height = 25.7576
+
+[node name="creature" type="CharacterBody2D"]
+z_index = 2
+script = ExtResource("1_5wnh4")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.9, 0.9)
+sprite_frames = SubResource("SpriteFrames_7fb36")
+animation = &"run"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 13)
+rotation = 1.5708
+scale = Vector2(0.986632, 1.24241)
+shape = SubResource("CapsuleShape2D_vpqcm")
+
+[node name="down_ray" type="RayCast2D" parent="."]
+position = Vector2(-7, 16)
+scale = Vector2(-0.997759, 0.136985)
+hit_from_inside = true
+
+[node name="killzone" type="Area2D" parent="." groups=["killbox"]]
+collision_layer = 3
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="killzone"]
+z_index = 2
+position = Vector2(-1, 0)
+scale = Vector2(1.44, 1.32)
+shape = SubResource("CapsuleShape2D_5m5un")
+
+[node name="straight_feet_ray" type="RayCast2D" parent="."]
+position = Vector2(0, 12)
+target_position = Vector2(-9.5, 0)
+
+[node name="straight_chest_ray" type="RayCast2D" parent="."]
+target_position = Vector2(-11, 0)
+
+[node name="straight_head_ray" type="RayCast2D" parent="."]
+position = Vector2(0, -19)
+target_position = Vector2(-8, 0)

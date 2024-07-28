@@ -71,8 +71,10 @@ enum states {
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
 @onready var run_start_timer = $Timers/Run_Start_Timer
 @onready var feetray = $feetray
+@onready var collision_shape_2d = $CollisionShape2D
 
-
+signal player_died
+signal player_won
 
 func _ready():
 	player_state = states.AIRBORNE
@@ -80,20 +82,26 @@ func _ready():
 	jump_buffer_time_left = JUMP_BUFFER_TIME
 	player_spawn_point = position
 	disabled = false
+	collision_shape_2d.disabled = false
 	
 func _process(_delta):
 	animate_player()
 
 func _physics_process(delta):
+	if player_state == states.WINNING:
+		velocity.y += DEFAULT_FALL_GRAVITY * delta
+		velocity.x = 0
+		move_and_slide()
+		return
 	if disabled:
 		if Input.is_action_just_pressed("show_cards"):
 			if get_parent().show_cards(false):
 				disabled = false
-	elif player_state != states.DYING and player_state != states.WINNING:
+	elif player_state != states.DYING:
 		if Input.is_action_just_pressed("show_cards"):
 			if get_parent().show_cards(true):
 				disabled = true
-	if player_state != states.DYING and player_state != states.WINNING and not disabled:
+	if player_state != states.DYING and not disabled:
 		handle_gravity(delta)
 		handle_input_buffer(delta)
 		handle_jump()
@@ -172,6 +180,7 @@ func handle_input_buffer(delta) -> void:
 	if Input.is_action_just_pressed("interact"):
 		interact_buffer_time_left = INTERACT_BUFFER_TIME
 
+
 func handle_inputs() -> void:
 	if interact_buffer_time_left > 0:
 		if lifting:
@@ -200,7 +209,7 @@ func handle_inputs() -> void:
 			if sprite.flip_h == false:
 				#facing the right
 				if rightray.is_colliding():
-					if rightray.get_collider().is_in_group("liftable"):
+					if rightray.get_collider().is_in_group("liftable") and enabled_lift:
 						#player is trying to grab a box
 						lifting = true
 						lifted_box = rightray.get_collider()
@@ -213,7 +222,7 @@ func handle_inputs() -> void:
 				#facing the left
 				#note: this is repeated code. could not make simpler as it did not work for some reason
 				if leftray.is_colliding():
-					if leftray.get_collider().is_in_group("liftable"):
+					if leftray.get_collider().is_in_group("liftable") and enabled_lift:
 						#player is trying to grab a box
 						lifting = true
 						lifted_box = leftray.get_collider()
@@ -288,13 +297,14 @@ func die() -> void:
 	#do death stuff here
 	if player_state != states.DYING:
 		player_state = states.DYING
+		collision_shape_2d.disabled = true
 		dying_timer.start()
 	
 func reached_goal() -> void:
 	#do goal stuff here
 	if player_state != states.WINNING:
 		player_state = states.WINNING
-		get_parent().player_won()
+		player_won.emit()
 
 
 func pause_level(pause_value: bool) -> void:
@@ -316,7 +326,18 @@ func enable_traps(value: bool) -> void:
 	enabled_traps = value
 
 func enable_lift(value: bool) -> void:
+	if lifting and value == false:
+		#player drops box on himself and dies
+		lifted_box.set_lifted(false)
+		lifted_box.set_position(position)
+		lifted_box = null
+		lifting = false
+		if player_state == states.GROUNDED:
+			die()
+		else:
+			player_state = states.AIRBORNE
 	enabled_lift = value
+	
 	
 func enable_smart(value: bool) -> void:
 	enabled_smart = value
@@ -369,15 +390,18 @@ func animate_player() -> void:
 			sprite.play("winning")
 
 func _on_area_area_entered(area):
+	if player_state == states.WINNING:
+		return
 	if area.is_in_group("killbox"):
 		die()
 	elif area.is_in_group("trap") and enabled_traps:
 		die()
 	elif area.is_in_group("goal"):
+		area.get_parent().grab_coin()
 		reached_goal()
 
 func _on_dying_timer_timeout():
-	get_parent().player_died()
+	player_died.emit()
 	queue_free()
 
 func _on_wall_jump_timer_timeout():

@@ -53,6 +53,8 @@ func load_level():
 			print("made it to some other level")
 			return
 	add_child(current_level_node)
+	current_level_node.on_player_won.connect(player_won)
+	current_level_node.on_player_death.connect(player_died)
 	current_level_node.position.x = 0
 	current_level_node.position.y = 0
 

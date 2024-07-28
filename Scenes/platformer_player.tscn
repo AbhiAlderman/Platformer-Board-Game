@@ -939,18 +939,18 @@ size = Vector2(13, 30.5202)
 size = Vector2(16.25, 31)
 
 [node name="Platformer_Player" type="CharacterBody2D"]
-z_index = 2
+z_index = 4
 script = ExtResource("1_l4e1b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -2)
 scale = Vector2(1.1, 1.1)
 sprite_frames = SubResource("SpriteFrames_s0uty")
-animation = &"idle"
+animation = &"idle_box"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0.5, 2.74757)
-scale = Vector2(1, 1.03194)
+scale = Vector2(1.08, 1.03194)
 shape = SubResource("RectangleShape2D_3gw28")
 
 [node name="Area" type="Area2D" parent="."]

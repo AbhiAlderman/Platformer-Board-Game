@@ -1,13 +1,12 @@
 extends Node2D
 
-signal on_player_death
 const CAMERA_ZOOM_PLATFORMER: Vector2 = Vector2(1.7, 1.7)
 const CAMERA_ZOOM_CARDS: Vector2 = Vector2(1.6, 1.6)
 const HAND_LIMIT: int = 5
 const HAND_EVEN_LEFTMOST: Vector2 =  Vector2(-82, 124)
 const HAND_EVEN_LEFTMID: Vector2 = Vector2(-30, 110)
 const HAND_EVEN_RIGHTMID: Vector2 = Vector2(30, 110)
-const HAND_EVEN_RIGHTMOST: Vector2 = Vector2(-82, 124)
+const HAND_EVEN_RIGHTMOST: Vector2 = Vector2(82, 124)
 const HAND_ODD_LEFTMOST: Vector2 = Vector2(-100, 142)
 const HAND_ODD_LEFTMID: Vector2 = Vector2(-50, 118)
 const HAND_ODD_CENTER: Vector2 = Vector2(0, 110)
@@ -30,6 +29,7 @@ const SLOT_POS_X_RIGHTMOST: Vector2 = Vector2(SLOT_X_GAP * 2, SLOT_POS_Y)
 @onready var platforms_and_levers = $Platforms_and_Levers
 @onready var cards = $Cards
 @onready var card_slots = $Card_Slots
+@onready var creatures = $Creatures
 
 @export var buffs: PackedStringArray
 @export var debuffs: PackedStringArray
@@ -44,8 +44,14 @@ var hand_orderings: PackedInt32Array = []
 var hand_map: Dictionary = {}
 var slot_array: Array = []
 var selected_card: Node2D = null
+var moving_card_menu: bool = false
+
+signal on_player_death
+signal on_player_won
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	platformer_player.player_died.connect(player_died)
+	platformer_player.player_won.connect(player_won)
 	more_traps.visible = false
 	load_card_slots()
 	load_player_cards()
@@ -77,10 +83,15 @@ func load_card_slots():
 			prev_slot.set_right_neighbor(slot.get_button_path())
 			slot.set_left_neighbor(prev_slot.get_button_path())
 		slot.set_active_position(slot.position)
+		slot.set_inactive_position(slot.position - Vector2(0, 200))
 		slot_array.append(slot)
 		slot.disable_slot()
+		slot.disable_selecting()
 		slot.z_index = 20
 		slot.slot_selected.connect(slot_selected)
+		slot.slot_got_focus.connect(slot_got_focus)
+		slot.slot_lost_focus.connect(slot_lost_focus)
+		slot.slot_done_moving.connect(slot_done_moving)
 		prev_slot = slot
 	
 func load_player_cards():
@@ -92,7 +103,11 @@ func load_player_cards():
 		card.change_scale(1)
 		set_hand(card)
 		card.disable_card()
+		card.disable_selecting()
 		card.card_selected.connect(card_selected)
+		card.card_got_focus.connect(card_got_focus)
+		card.card_lost_focus.connect(card_lost_focus)
+		card.card_done_moving.connect(card_done_moving)
 	assign_neighbors()
 
 func load_level_interactables():
@@ -131,19 +146,20 @@ func set_hand(card: Node2D):
 		#even number of player cards
 		hand_positions = [HAND_ODD_CENTER, HAND_ODD_LEFTMID, HAND_ODD_RIGHTMID, HAND_ODD_LEFTMOST, HAND_ODD_RIGHTMOST]
 		hand_rotations = [0, -15, 15, -30, 30]
-		hand_orderings = [20, 21, 19, 22, 18]
+		hand_orderings = [30, 31, 29, 32, 28]
 	else:
 		hand_positions = [HAND_EVEN_LEFTMID, HAND_EVEN_RIGHTMID, HAND_EVEN_LEFTMOST, HAND_EVEN_RIGHTMOST]
 		hand_rotations = [-10, 10, -19, 19]
-		hand_orderings = [20, 19, 21, 18]
+		hand_orderings = [30, 29, 31, 28]
 	#assign card to first empty slot
 	for i in range(hand_positions.size()):
 		if hand_map.get(hand_positions[i]) == null:
 			hand_map[hand_positions[i]] = card
 			card.position = hand_positions[i]
-			card.rotation_degrees = hand_rotations[i]
+			card.set_hand_rotation(hand_rotations[i])
 			card.z_index = hand_orderings[i]
 			card.set_active_position(card.position)
+			card.set_inactive_position(card.position + Vector2(0, 200))
 			break
 
 func assign_neighbors() -> void:
@@ -154,37 +170,101 @@ func assign_neighbors() -> void:
 		return
 	elif num_player_cards % 2 != 0:
 		#odd numbered hand
-		position_order = [HAND_ODD_LEFTMOST, HAND_ODD_LEFTMID, HAND_ODD_CENTER, HAND_ODD_RIGHTMID, HAND_ODD_RIGHTMOST]
+		position_order = [HAND_ODD_RIGHTMOST, HAND_ODD_RIGHTMID, HAND_ODD_CENTER, HAND_ODD_LEFTMID, HAND_ODD_LEFTMOST]
 	else:
-		position_order = [HAND_EVEN_LEFTMOST, HAND_EVEN_LEFTMID, HAND_EVEN_RIGHTMID, HAND_EVEN_RIGHTMOST]
-	for position in position_order:
-		curr_card = hand_map.get(position)
+		position_order = [HAND_EVEN_RIGHTMOST, HAND_EVEN_RIGHTMID, HAND_EVEN_LEFTMID, HAND_EVEN_LEFTMOST]
+	for pos in position_order:
+		curr_card = hand_map.get(pos)
 		if curr_card == null:
 			continue
 		if prev_card == null:
-			curr_card.set_left_neighbor("")
+			curr_card.set_right_neighbor("")
 		else:
-			curr_card.set_left_neighbor(prev_card.get_button_path())
-			prev_card.set_right_neighbor(curr_card.get_button_path())
-		curr_card.set_right_neighbor("")
-		curr_card.grab_focus()
+			curr_card.set_right_neighbor(prev_card.get_button_path())
+			prev_card.set_left_neighbor(curr_card.get_button_path())
+		curr_card.set_left_neighbor("")
+		curr_card.set_top_neighbor(slot_array[0].get_button_path())
 		prev_card = curr_card
+	if num_player_cards == 1:
+		curr_card = hand_map.values()[0]
+	else:
+		curr_card = hand_map.values()[-2]
+	for slot in slot_array:
+		slot.set_bottom_neighbor(curr_card.get_button_path())
+	curr_card.grab_focus()
 		
 func card_selected(card: Node2D) -> void:
 	selected_card = card
 	for c in hand_map.values():
-		if c != card:
-			c.disable_selecting()
+		c.disable_selecting()
+	for s in slot_array:
+		s.enable_selecting()
+	selected_card.rotation_degrees = 0
 	slot_array[0].grab_focus()
+
+func card_got_focus(card: Node2D) -> void:
+	pass
+
+func card_lost_focus(card: Node2D) -> void:
+	pass
 	
+func card_done_moving() -> void:
+	moving_card_menu = false
+
 func slot_selected(slot: Node2D) -> void:
-	print("SLOT SELECTED!")
+	if selected_card == null:
+		print("NO SELECTED CARD??")
+	else:
+		#holding card and selecting slot
+		if slot.get_card() != null:
+			#destroy card in slot
+			slot.get_card().queue_free()
+			slot.release_card()
+			#ADD ANIMATION FOR DESTROYING CARD; CREATE METHOD IN CARD FOR THIS
+		#place card in slot
+		selected_card.position = slot.position
+		selected_card.rotation_degrees = 0
+		slot.hold_card(selected_card)
+		selected_card.set_active_position(slot.get_active_position())
+		selected_card.set_inactive_position(slot.get_inactive_position())
+		#update card hand
+		num_player_cards -= 1
+		var old_hand = hand_map.values().duplicate()
+		hand_map.clear()
+		for card in old_hand:
+			if card != selected_card:
+				set_hand(card)
+			card.enable_selecting()
+		for s in slot_array:
+			s.disable_selecting()
+		assign_neighbors()
+	if num_player_cards == 0:
+		#no more cards in hand
+		pause_level(false)
+	elif num_player_cards == 1:
+		hand_map.values()[0].grab_focus()
+	else:
+		hand_map.values()[-2].grab_focus()
+	print(num_player_cards)
+		
 	
+func slot_got_focus(slot: Node2D) -> void:
+	if selected_card == null:
+		pass
+	else:
+		selected_card.position = slot.position + Vector2(0, 20)
+	
+func slot_lost_focus(slot: Node2D) -> void:
+	pass
+
+func slot_done_moving() -> void:
+	moving_card_menu = false
+
 func player_died() -> void:
-	get_parent().player_died()
+	on_player_death.emit()
 
 func player_won() -> void:
-	get_parent().player_won()
+	on_player_won.emit()
 
 func kill_player() -> void:
 	platformer_player.die()
@@ -203,21 +283,38 @@ func enable_glide(value: bool) -> void:
 
 func enable_traps(value: bool) -> void:
 	platformer_player.enable_traps(value)
-	more_traps.visible = true
+	more_traps.visible = value
+
+func enable_lift(value: bool) -> void:
+	platformer_player.enable_lift(value)
 
 func pause_level(pause_value: bool) -> void:
 	if pause_value:
 		get_parent().change_camera_zoom(CAMERA_ZOOM_CARDS, 0.1)
-		for card in cards.get_children():
+		moving_card_menu = true
+		for card in hand_map.values():
 			card.enable_card()
-		for slot in card_slots.get_children():
+			card.enable_selecting()
+		for slot in slot_array:
 			slot.enable_slot()
+			slot.disable_selecting()
+		if num_player_cards == 0:
+			return
+		elif num_player_cards == 1:
+			hand_map.values()[0].grab_focus()
+		else:
+			hand_map.values()[-2].grab_focus()
 	else:
 		get_parent().change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.1)
-		for card in cards.get_children():
+		moving_card_menu = true
+		for card in hand_map.values():
+			card.reset_rotation()
 			card.disable_card()
-		for slot in card_slots.get_children():
+			card.disable_selecting()
+		for slot in slot_array:
 			slot.disable_slot()
+			slot.disable_selecting()
+		handle_effects()
 	platformer_player.pause_level(pause_value)
 	for box in boxes.get_children():
 		box.pause_level(pause_value)
@@ -226,9 +323,33 @@ func pause_level(pause_value: bool) -> void:
 			match child.name:
 				"Platform":
 					child.pause_level(pause_value)
-					
+	for creature in creatures.get_children():
+		creature.pause_level(pause_value)
+
+func handle_effects() -> void:
+	enable_double_jump(false)
+	enable_wall_jump(false)
+	enable_glide(false)
+	enable_lift(false)
+	enable_traps(false)
+	for slot in slot_array:
+		if slot.get_card() != null:
+			match slot.get_card().get_effect():
+				"double_jump":
+					enable_double_jump(true)
+				"wall_jump":
+					enable_wall_jump(true)
+				"glide":
+					enable_glide(true)
+				"lift":
+					enable_lift(true)
+				"spike":
+					enable_traps(true)
+				_:
+					print("INVALID EFFECT")
+
 func show_cards(value: bool) -> bool:
-	if get_parent().is_platforming():
+	if get_parent().is_platforming() and not moving_card_menu:
 		pause_level(value)
 		return true
 	return false
