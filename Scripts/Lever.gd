@@ -9,6 +9,7 @@ signal toggled
 func _ready():
 	on = false
 	toggleable = true
+	sprite.play("blue")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -19,10 +20,10 @@ func toggle() -> void:
 		return
 	if on:
 		on = false
-		sprite.play("off")
+		sprite.play("blue")
 	else:
 		on = true
-		sprite.play("on")
+		sprite.play("purple")
 	toggled.emit()
 
 func set_toggleable(value: bool) -> void:

@@ -32,14 +32,7 @@ func _ready():
 	change_gamestate(states.MAP)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	match game_state:
-		states.MAP:
-			progress_sprite.play("visible")
-		states.PLATFORMER:
-			progress_sprite.play("invisible")
-		_:
-			print("invalid game state")
-
+	pass
 func load_level():
 	#load the current platformer level
 	match current_level_number:
@@ -102,11 +95,14 @@ func change_gamestate(state: states):
 			game_state = states.MAP
 			change_camera_zoom(CAMERA_ZOOM_MAP, 0.2)
 			progress_timer.start()
+			progress_sprite.play("visible")
 		states.PLATFORMER:
+			progress_sprite.play("invisible")
 			game_state = states.PLATFORMER
 			enable_player_control()
 			change_camera_zoom(CAMERA_ZOOM_PLATFORMER, 0.2)
 		states.GAMEOVER:
+			progress_sprite.play("invisible")
 			game_state = states.GAMEOVER
 			print("game over")
 		_:

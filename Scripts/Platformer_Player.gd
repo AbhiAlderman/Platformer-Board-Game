@@ -10,8 +10,10 @@ const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
 const DEFAULT_JUMP_VELOCITY: float = -450.0
+const PLATFORM_JUMP_HEIGHT: float = -350
 const DEFAULT_RISE_GRAVITY: float = 1600
 const DEFAULT_FALL_GRAVITY: float = 2200
+const DOUBLE_JUMP_VELOCITY: float = -380
 const JUMP_HOLD_GRAVITY: float = 600
 const JUMP_BUFFER_TIME: float = 0.15
 const JUMP_HOLD_TIME: float = 0.2
@@ -55,6 +57,7 @@ var lifting: bool = false
 var interact_buffer_time_left: float = 0.0
 var lifted_box = null
 var moved_by_platform: bool = false
+var platform: StaticBody2D
 enum states {
 	GROUNDED,
 	AIRBORNE,
@@ -65,12 +68,11 @@ enum states {
 
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var dying_timer: Timer = $Timers/Dying_Timer
 @onready var leftray: RayCast2D = $leftray
 @onready var rightray: RayCast2D = $rightray
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
 @onready var run_start_timer = $Timers/Run_Start_Timer
-@onready var feetray = $feetray
+@onready var dying_timer: Timer = $Timers/Dying_Timer
 @onready var collision_shape_2d = $CollisionShape2D
 
 signal player_died
@@ -110,8 +112,8 @@ func _physics_process(delta):
 		move_and_slide()
 		if lifting:
 			lifted_box.position = position
-		if moved_by_platform:
-			position += feetray.get_collider().get_position_changed() * delta
+		if moved_by_platform and platform:
+			position += platform.get_collider().get_position_changed() * delta
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -119,7 +121,7 @@ func get_gravity() -> float:
 	return fall_gravity
 
 func handle_gravity(delta) -> void:
-	if not is_on_floor() and not feetray.is_colliding():
+	if not is_on_floor() and not moved_by_platform:
 		coyote_time_left -= delta
 		if is_on_wall() and enabled_wall_jump and velocity.y >= 0 and not lifting:
 			#wall slide
@@ -202,6 +204,7 @@ func handle_inputs() -> void:
 				position += Vector2(3, 0)
 			lifting = false
 			lifted_box.set_lifted(false)
+			lifted_box.set_disabled(false)
 			lifted_box = null
 			player_state = states.AIRBORNE
 			interact_buffer_time_left = 0
@@ -247,19 +250,20 @@ func handle_jump() -> void:
 			last_wall_direction = wall_direction()
 		elif can_double_jump and enabled_double_jump:
 			#double jump if able
-			velocity.y = jump_velocity
+			velocity.y = DOUBLE_JUMP_VELOCITY
 			can_double_jump = false
 		jump_buffer_time_left = 0
 		jump_time = 0.0
 
+func platform_hop() -> void:
+	velocity.y = PLATFORM_JUMP_HEIGHT
+	moved_by_platform = false
+
+func on_moving_platform() -> void:
+	moved_by_platform = true
+
 func handle_movement() -> void:
 	direction = Input.get_axis("left", "right")
-	if feetray.is_colliding():
-		#player is touching a platform
-		moved_by_platform = true
-	else:
-		#player is not touching a platform
-		moved_by_platform = false
 	if wall_jumping and enabled_wall_jump:
 		#give horizontal movement when jumping off a wall
 		if last_wall_direction == "left":
@@ -330,6 +334,7 @@ func enable_lift(value: bool) -> void:
 		#player drops box on himself and dies
 		lifted_box.set_lifted(false)
 		lifted_box.set_position(position)
+		lifted_box.set_disabled(false)
 		lifted_box = null
 		lifting = false
 		if player_state == states.GROUNDED:
@@ -357,6 +362,10 @@ func animate_player() -> void:
 	match player_state:
 		states.GROUNDED:
 			if velocity.x == 0:
+				if Input.is_action_just_pressed("right"):
+					sprite.flip_h = false
+				elif Input.is_action_just_pressed("left"):
+					sprite.flip_h = true
 				if lifting:
 					sprite.play("idle_box")
 				else:
@@ -409,3 +418,15 @@ func _on_wall_jump_timer_timeout():
 
 func _on_run_start_timer_timeout():
 	run_start = false
+	
+func _on_feet_area_area_entered(area):
+	if area.is_in_group("platform"):
+		platform = area.get_parent()
+		platform.started_moving.connect(on_moving_platform)
+		platform.stopped_moving.connect(platform_hop)
+
+func _on_feet_area_area_exited(area):
+	if area.is_in_group("platform"):
+		platform.started_moving.disconnect(on_moving_platform)
+		platform.stopped_moving.disconnect(platform_hop)
+		platform = null

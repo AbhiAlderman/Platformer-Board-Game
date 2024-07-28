@@ -1,11 +1,31 @@
-[gd_scene load_steps=5 format=3 uid="uid://c5s4t5wsoufw"]
+[gd_scene load_steps=10 format=3 uid="uid://c5s4t5wsoufw"]
 
 [ext_resource type="Script" path="res://Scripts/main_scene.gd" id="1_8wvd0"]
 [ext_resource type="Texture2D" uid="uid://c2v2s5hxoe4mp" path="res://Assets/WorldMap/map.png" id="2_fdmnk"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_mn62u"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_yxjsg"]
 atlas = ExtResource("2_fdmnk")
-region = Rect2(0, 0, 300, 180)
+region = Rect2(0, 0, 160, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i57ok"]
+atlas = ExtResource("2_fdmnk")
+region = Rect2(160, 0, 160, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tr821"]
+atlas = ExtResource("2_fdmnk")
+region = Rect2(320, 0, 160, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xarps"]
+atlas = ExtResource("2_fdmnk")
+region = Rect2(480, 0, 160, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3h68q"]
+atlas = ExtResource("2_fdmnk")
+region = Rect2(640, 0, 160, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1sjsg"]
+atlas = ExtResource("2_fdmnk")
+region = Rect2(800, 0, 160, 128)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_faahf"]
 animations = [{
@@ -19,9 +39,24 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mn62u")
+"texture": SubResource("AtlasTexture_yxjsg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i57ok")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tr821")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xarps")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3h68q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1sjsg")
 }],
-"loop": true,
+"loop": false,
 "name": &"visible",
 "speed": 9.0
 }]
@@ -44,10 +79,11 @@ color = Color(0.301961, 0.168627, 0.196078, 1)
 [node name="Progress" type="Node" parent="."]
 
 [node name="ProgressSprite" type="AnimatedSprite2D" parent="Progress"]
-rotation = 1.5708
 scale = Vector2(6, 6)
 sprite_frames = SubResource("SpriteFrames_faahf")
-animation = &"invisible"
+animation = &"visible"
+frame = 5
+frame_progress = 1.0
 
 [node name="Progress_Timer" type="Timer" parent="Progress"]
 wait_time = 3.0

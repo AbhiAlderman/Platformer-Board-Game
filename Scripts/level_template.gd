@@ -245,7 +245,6 @@ func slot_selected(slot: Node2D) -> void:
 		hand_map.values()[0].grab_focus()
 	else:
 		hand_map.values()[-2].grab_focus()
-	print(num_player_cards)
 		
 	
 func slot_got_focus(slot: Node2D) -> void:

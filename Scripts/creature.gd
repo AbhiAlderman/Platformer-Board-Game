@@ -3,9 +3,12 @@ extends CharacterBody2D
 
 const SPEED: float = 100
 const GRAVITY: float = 2200
+const PLATFORM_JUMP_HEIGHT: float = -400
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var facing_right: bool = false
 var paused: bool = false
+var moved_by_platform: bool = false
+var platform: StaticBody2D
 @onready var down_ray = $down_ray
 @onready var straight_feet_ray = $straight_feet_ray
 @onready var straight_chest_ray = $straight_chest_ray
@@ -20,9 +23,12 @@ func _ready():
 func _physics_process(delta):
 	if paused:
 		return
-	if not is_on_floor():
-		velocity.y += GRAVITY * delta
+		
 	check_rays()
+	if not is_on_floor() and not moved_by_platform:
+		velocity.y += GRAVITY * delta
+	elif moved_by_platform and platform:
+		position += platform.get_position_changed() * delta
 	if facing_right:
 		velocity.x = SPEED
 	else:
@@ -32,7 +38,14 @@ func _physics_process(delta):
 func check_rays():
 	if straight_rays_colliding() or !down_ray.is_colliding():
 		flip_direction()
-		
+
+func platform_hop() -> void:
+	velocity.y = PLATFORM_JUMP_HEIGHT
+	moved_by_platform = false
+
+func on_moving_platform() -> void:
+	moved_by_platform = true
+	
 func flip_direction() -> void:
 	if facing_right:
 		facing_right = false
@@ -64,3 +77,17 @@ func pause_level(value: bool) -> void:
 	else:
 		sprite.play("run")
 
+
+
+func _on_platform_detection_area_area_entered(area):
+	if area.is_in_group("platform"):
+		platform = area.get_parent()
+		platform.started_moving.connect(on_moving_platform)
+		platform.stopped_moving.connect(platform_hop)
+
+
+func _on_platform_detection_area_area_exited(area):
+	if area.is_in_group("platform"):
+		platform.started_moving.disconnect(on_moving_platform)
+		platform.stopped_moving.disconnect(platform_hop)
+		platform = null

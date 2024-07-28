@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b1gjaf3odv74p"]
+[gd_scene load_steps=15 format=3 uid="uid://b1gjaf3odv74p"]
 
 [ext_resource type="Script" path="res://Scripts/creature.gd" id="1_5wnh4"]
 [ext_resource type="Texture2D" uid="uid://78fhnfx1b45w" path="res://Assets/npcs/luh_jit-Sheet.png" id="2_md8nj"]
@@ -68,12 +68,16 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vpqcm"]
-radius = 3.21955
-height = 12.8782
+radius = 2.0271
+height = 11.2684
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5m5un"]
 radius = 7.63889
 height = 25.7576
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tcgbo"]
+radius = 2.0
+height = 14.0
 
 [node name="creature" type="CharacterBody2D"]
 z_index = 2
@@ -85,7 +89,7 @@ sprite_frames = SubResource("SpriteFrames_7fb36")
 animation = &"run"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 13)
+position = Vector2(-5.68434e-14, 14)
 rotation = 1.5708
 scale = Vector2(0.986632, 1.24241)
 shape = SubResource("CapsuleShape2D_vpqcm")
@@ -115,3 +119,16 @@ target_position = Vector2(-11, 0)
 [node name="straight_head_ray" type="RayCast2D" parent="."]
 position = Vector2(0, -19)
 target_position = Vector2(-8, 0)
+
+[node name="platform_detection_area" type="Area2D" parent="."]
+scale = Vector2(1.12, 1)
+collision_layer = 64
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="platform_detection_area"]
+position = Vector2(0, 15)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_tcgbo")
+
+[connection signal="area_entered" from="platform_detection_area" to="." method="_on_platform_detection_area_area_entered"]
+[connection signal="area_exited" from="platform_detection_area" to="." method="_on_platform_detection_area_area_exited"]

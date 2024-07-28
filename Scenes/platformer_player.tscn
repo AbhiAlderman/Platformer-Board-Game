@@ -1,4 +1,4 @@
-[gd_scene load_steps=134 format=3 uid="uid://yhfgqx38dv8u"]
+[gd_scene load_steps=135 format=3 uid="uid://yhfgqx38dv8u"]
 
 [ext_resource type="Script" path="res://Scripts/Platformer_Player.gd" id="1_l4e1b"]
 [ext_resource type="Texture2D" uid="uid://bdlphbsobw36f" path="res://Assets/Player/mc_death-Sheet.png" id="2_agxli"]
@@ -938,6 +938,10 @@ size = Vector2(13, 30.5202)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d0t0e"]
 size = Vector2(16.25, 31)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_pi5dw"]
+radius = 2.0
+height = 14.0
+
 [node name="Platformer_Player" type="CharacterBody2D"]
 z_index = 4
 script = ExtResource("1_l4e1b")
@@ -953,7 +957,7 @@ position = Vector2(0.5, 2.74757)
 scale = Vector2(1.08, 1.03194)
 shape = SubResource("RectangleShape2D_3gw28")
 
-[node name="Area" type="Area2D" parent="."]
+[node name="Area" type="Area2D" parent="." groups=["player"]]
 visible = false
 collision_layer = 2
 collision_mask = 2
@@ -989,14 +993,20 @@ target_position = Vector2(13, 0)
 collision_mask = 19
 hit_from_inside = true
 
-[node name="feetray" type="RayCast2D" parent="."]
-position = Vector2(1, 18)
-scale = Vector2(11.6278, 0.0170851)
-target_position = Vector2(0, 58.5306)
-collision_mask = 32
-hit_from_inside = true
+[node name="feet_area" type="Area2D" parent="."]
+scale = Vector2(1.12, 1)
+collision_layer = 64
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="feet_area"]
+position = Vector2(-5.68434e-14, 17)
+rotation = 1.5708
+scale = Vector2(1, 0.920004)
+shape = SubResource("CapsuleShape2D_pi5dw")
 
 [connection signal="area_entered" from="Area" to="." method="_on_area_area_entered"]
 [connection signal="timeout" from="Timers/Dying_Timer" to="." method="_on_dying_timer_timeout"]
 [connection signal="timeout" from="Timers/Wall_Jump_Timer" to="." method="_on_wall_jump_timer_timeout"]
 [connection signal="timeout" from="Timers/Run_Start_Timer" to="." method="_on_run_start_timer_timeout"]
+[connection signal="area_entered" from="feet_area" to="." method="_on_feet_area_area_entered"]
+[connection signal="area_exited" from="feet_area" to="." method="_on_feet_area_area_exited"]

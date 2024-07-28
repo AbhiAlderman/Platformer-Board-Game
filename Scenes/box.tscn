@@ -47,16 +47,15 @@ shape = SubResource("RectangleShape2D_q4jn5")
 sprite_frames = SubResource("SpriteFrames_rcdai")
 animation = &"visible"
 
-[node name="switch_detection" type="Area2D" parent="."]
-collision_layer = 2
-collision_mask = 2
+[node name="area_detection" type="Area2D" parent="."]
+collision_layer = 66
+collision_mask = 66
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="switch_detection"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="area_detection"]
 shape = SubResource("RectangleShape2D_df0ug")
 
-[node name="PlatformDetectorRay" type="RayCast2D" parent="."]
-position = Vector2(0, 9)
-scale = Vector2(-17.3168, 0.278507)
-target_position = Vector2(0, 14.3623)
-collision_mask = 32
-hit_from_inside = true
+[node name="Detect_Player_On_Top" type="RayCast2D" parent="."]
+target_position = Vector2(0, -15)
+
+[connection signal="area_entered" from="area_detection" to="." method="_on_area_detection_area_entered"]
+[connection signal="area_exited" from="area_detection" to="." method="_on_area_detection_area_exited"]

@@ -2,6 +2,8 @@ extends StaticBody2D
 
 const MOVE_SPEED: float = 50
 
+@onready var sprite = $AnimatedSprite2D
+
 var goal_position: Vector2
 var position_one: Vector2
 var position_two: Vector2
@@ -9,6 +11,9 @@ var moving: bool
 var assigned_lever
 var position_change: Vector2
 var paused: bool
+var blue: bool
+signal started_moving
+signal stopped_moving
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	position_one = position
@@ -16,6 +21,7 @@ func _ready():
 	moving = false
 	position_change = Vector2(0, 0)
 	paused = false
+	blue = true
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -47,6 +53,8 @@ func _physics_process(delta):
 				position_change.y = -MOVE_SPEED
 				position.y -= MOVE_SPEED * delta
 	else:
+		if moving:
+			stopped_moving.emit()
 		moving = false
 		assigned_lever.set_toggleable(true)
 		position_change = Vector2(0, 0)
@@ -54,11 +62,14 @@ func _physics_process(delta):
 func switch_position() -> void:
 	if not moving:
 		moving = true
+		started_moving.emit()
 		assigned_lever.set_toggleable(false)
 		if goal_position == position_one:
 			goal_position = position_two
+			sprite.play("purple")
 		else:
 			goal_position = position_one
+			sprite.play("blue")
 		
 func assign_positions(pos1: Vector2, pos2: Vector2) -> void:
 	position_one = pos1
