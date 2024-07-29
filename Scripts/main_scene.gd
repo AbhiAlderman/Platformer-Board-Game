@@ -6,12 +6,15 @@ const CAMERA_ZOOM_CARDS: Vector2 = Vector2(0.48, 0.48)
 const CAMERA_POSITION_MAP: Vector2 = Vector2(0, 0)
 const CAMERA_POSITION_PLATFORMER: Vector2 = Vector2(0, 0)
 const LEVEL_PREPATH: String = "res://Scenes/levels/level_"
+@onready var music = $Music
 
 @onready var camera = $Camera
 @onready var progress_timer = $Progress/Progress_Timer
 @onready var progress_sprite = $Progress/ProgressSprite
 @export var starting_level_number: int
 
+var song_array = []
+var song_count = 0
 var level_template = preload("res://Scenes/level_template.tscn")
 var current_level_number: int
 var current_level_scene: PackedScene
@@ -29,10 +32,22 @@ enum states {
 func _ready():
 	update_current_level_number(starting_level_number)
 	change_gamestate(states.MAP)
+	for song in music.get_children():
+		song_array.append(song)
+		song.finished.connect(song_ended)
+	song_array.shuffle()
+	song_array[0].play()
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	pass
 
+func song_ended():
+	song_count += 1
+	if song_count >= song_array.size():
+		song_count = 0
+		song_array.shuffle()
+	song_array[song_count].play()
+	
 func update_current_level_number(new_value: int) -> void:
 	current_level_number = new_value
 	current_level_scene = load(LEVEL_PREPATH + str(current_level_number) + ".tscn")

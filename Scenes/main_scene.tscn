@@ -1,7 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://c5s4t5wsoufw"]
+[gd_scene load_steps=14 format=3 uid="uid://c5s4t5wsoufw"]
 
 [ext_resource type="Script" path="res://Scripts/main_scene.gd" id="1_8wvd0"]
 [ext_resource type="Texture2D" uid="uid://c2v2s5hxoe4mp" path="res://Assets/WorldMap/map.png" id="2_fdmnk"]
+[ext_resource type="AudioStream" uid="uid://cproj8421h4va" path="res://Assets/audio/music/goof ahh.ogg" id="3_s057v"]
+[ext_resource type="AudioStream" uid="uid://mrixsvuppqst" path="res://Assets/audio/music/Three Red Hearts - Go.ogg" id="4_cq1bp"]
+[ext_resource type="AudioStream" uid="uid://p6jwe7ghfjxq" path="res://Assets/audio/music/mischevious.ogg" id="5_jdx7a"]
+[ext_resource type="AudioStream" uid="uid://cd1ttwhf6jp50" path="res://Assets/audio/music/Three Red Hearts - Deep Blue.ogg" id="6_arhe4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yxjsg"]
 atlas = ExtResource("2_fdmnk")
@@ -63,7 +67,7 @@ animations = [{
 
 [node name="Main_Scene" type="Node2D"]
 script = ExtResource("1_8wvd0")
-starting_level_number = 4
+starting_level_number = 6
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
@@ -89,5 +93,23 @@ frame_progress = 1.0
 [node name="Progress_Timer" type="Timer" parent="Progress"]
 wait_time = 3.0
 one_shot = true
+
+[node name="Music" type="Node" parent="."]
+
+[node name="Song1" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("3_s057v")
+volume_db = -25.0
+
+[node name="Song2" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("4_cq1bp")
+volume_db = -25.0
+
+[node name="Song3" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("5_jdx7a")
+volume_db = -25.0
+
+[node name="Song4" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("6_arhe4")
+volume_db = -25.0
 
 [connection signal="timeout" from="Progress/Progress_Timer" to="." method="_on_progress_timer_timeout"]

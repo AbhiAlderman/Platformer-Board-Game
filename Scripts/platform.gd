@@ -61,6 +61,7 @@ func _physics_process(delta):
 
 func switch_position() -> void:
 	if not moving:
+		toggle_color()
 		moving = true
 		started_moving.emit()
 		assigned_lever.set_toggleable(false)
@@ -81,6 +82,12 @@ func assign_lever(lever) -> void:
 	assigned_lever = lever
 	assigned_lever.set_toggleable(true)
 	
+func toggle_color():
+	if blue:
+		sprite.play("purple")
+	else:
+		sprite.play("blue")
+	blue = not blue
 func get_position_changed() -> Vector2:
 	return position_change
 	

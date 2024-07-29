@@ -88,7 +88,7 @@ func load_card_slots():
 			prev_slot.set_right_neighbor(slot.get_button_path())
 			slot.set_left_neighbor(prev_slot.get_button_path())
 		slot.set_active_position(slot.position)
-		slot.set_inactive_position(slot.position - Vector2(0, 200))
+		slot.set_inactive_position(slot.position - Vector2(0, 400))
 		slot_array.append(slot)
 		slot.disable_slot()
 		slot.disable_selecting()
@@ -169,7 +169,7 @@ func set_hand(card: Node2D):
 			card.set_hand_rotation(hand_rotations[i])
 			card.z_index = hand_orderings[i]
 			card.set_active_position(card.position)
-			card.set_inactive_position(card.position + Vector2(0, 200))
+			card.set_inactive_position(card.position + Vector2(0, 400))
 			break
 
 func assign_neighbors() -> void:
@@ -224,6 +224,7 @@ func card_done_moving() -> void:
 func slot_selected(slot: Node2D) -> void:
 	if selected_card == null:
 		print("NO SELECTED CARD??")
+		return
 	else:
 		#holding card and selecting slot
 		if slot.get_card() != null:
@@ -311,6 +312,8 @@ func pause_level(pause_value: bool) -> void:
 		for slot in slot_array:
 			slot.enable_slot()
 			slot.disable_selecting()
+		for creature in creatures.get_children():
+			creature.pause_level(pause_value)
 		if num_player_cards == 0:
 			return
 		elif num_player_cards == 1:

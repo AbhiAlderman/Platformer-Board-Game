@@ -5,8 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://crrttwajp1qyo" path="res://Assets/cards/buffs/glide.png" id="3_wy4uy"]
 [ext_resource type="Texture2D" uid="uid://ca8r3uj75rb8t" path="res://Assets/cards/buffs/lift.png" id="4_nodgq"]
 [ext_resource type="Texture2D" uid="uid://ba32yw8lrtwc8" path="res://Assets/cards/buffs/Spikes.png" id="5_1so3f"]
-[ext_resource type="Texture2D" uid="uid://cdoapc3dj5o0w" path="res://Assets/cards/buffs/speed.png" id="5_g25ym"]
-[ext_resource type="Texture2D" uid="uid://bhr4355dhbaf5" path="res://Assets/cards/fool.png" id="6_k8kxj"]
+[ext_resource type="Texture2D" uid="uid://dhem1veab28yy" path="res://Assets/cards/buffs/smart.png" id="5_jbv8y"]
+[ext_resource type="Texture2D" uid="uid://djtuphrimvkcp" path="res://Assets/cards/buffs/wall_jump.png" id="7_3xfkk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_eiovg"]
 atlas = ExtResource("2_7cb0d")
@@ -20,16 +20,16 @@ region = Rect2(0, 0, 72, 120)
 atlas = ExtResource("4_nodgq")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wnclu"]
-atlas = ExtResource("5_g25ym")
+[sub_resource type="AtlasTexture" id="AtlasTexture_j3m0u"]
+atlas = ExtResource("5_jbv8y")
 region = Rect2(0, 0, 72, 120)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f3off"]
 atlas = ExtResource("5_1so3f")
 region = Rect2(0, 0, 72, 120)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_e4b6e"]
-atlas = ExtResource("6_k8kxj")
+[sub_resource type="AtlasTexture" id="AtlasTexture_drigk"]
+atlas = ExtResource("7_3xfkk")
 region = Rect2(0, 0, 72, 120)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gcgo2"]
@@ -60,7 +60,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_wnclu")
+"texture": SubResource("AtlasTexture_j3m0u")
 }],
 "loop": false,
 "name": &"default_smart",
@@ -76,7 +76,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e4b6e")
+"texture": SubResource("AtlasTexture_drigk")
 }],
 "loop": false,
 "name": &"default_wall_jump",
@@ -98,7 +98,7 @@ scale = Vector2(8.5548, 14.1347)
 
 [node name="sprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_gcgo2")
-animation = &"default_smart"
+animation = &"default_wall_jump"
 
 [connection signal="focus_entered" from="Button" to="." method="_on_button_focus_entered"]
 [connection signal="focus_exited" from="Button" to="." method="_on_button_focus_exited"]

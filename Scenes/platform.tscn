@@ -31,7 +31,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qu06b"]
-size = Vector2(64, 7)
+size = Vector2(64, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0wjrg"]
 size = Vector2(64, 1.5)
@@ -45,13 +45,11 @@ script = ExtResource("1_ayoep")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, 8)
 sprite_frames = SubResource("SpriteFrames_6e3xt")
-animation = &"purple"
+animation = &"blue"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(0, 3.5)
+position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_qu06b")
-one_way_collision = true
 
 [node name="platform_area" type="Area2D" parent="." groups=["platform"]]
 scale = Vector2(1, 3.28)

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cproj8421h4va"
+path="res://.godot/imported/goof ahh.ogg-8b83f112a63fcbd10d2242962614d7ec.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/audio/music/goof ahh.ogg"
+dest_files=["res://.godot/imported/goof ahh.ogg-8b83f112a63fcbd10d2242962614d7ec.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

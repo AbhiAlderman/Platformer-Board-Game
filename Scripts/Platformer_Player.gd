@@ -2,19 +2,20 @@ extends CharacterBody2D
 
 #constants
 #movement
-const DEFAULT_GROUND_SPEED: float = 200
-const DEFAULT_AIR_SPEED: float = 200
+const DEFAULT_GROUND_SPEED: float = 190
+const DEFAULT_AIR_SPEED: float = 190
 const LIFTING_SPEED_PERCENTAGE: float = 0.55
 const STARTUP_SPEED_PERCENTAGE: float = 0.77
 const GROUND_DECELERATION: float = 30
 const AIR_DECELERATION: float = 25
 #jumping
-const DEFAULT_JUMP_VELOCITY: float = -450.0
-const PLATFORM_JUMP_HEIGHT: float = -350
+const DEFAULT_JUMP_VELOCITY: float = -400
+const PLATFORM_JUMP_HEIGHT: float = -320
 const DEFAULT_RISE_GRAVITY: float = 1600
 const DEFAULT_FALL_GRAVITY: float = 2200
-const DOUBLE_JUMP_VELOCITY: float = -380
-const JUMP_HOLD_GRAVITY: float = 600
+const MAX_FALL_GRAVITY: float = 1050
+const DOUBLE_JUMP_VELOCITY: float = -375
+const JUMP_HOLD_GRAVITY: float = 500
 const JUMP_BUFFER_TIME: float = 0.15
 const JUMP_HOLD_TIME: float = 0.2
 const COYOTE_TIME: float = 0.08
@@ -59,6 +60,7 @@ var lifted_box = null
 var moved_by_platform: bool = false
 var platform: StaticBody2D
 var old_velocity: Vector2
+var confused: bool
 enum states {
 	GROUNDED,
 	AIRBORNE,
@@ -68,13 +70,25 @@ enum states {
 }
 
 
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var leftray: RayCast2D = $leftray
-@onready var rightray: RayCast2D = $rightray
+@onready var leftray1: RayCast2D = $leftray1
+@onready var rightray1: RayCast2D = $rightray1
+@onready var leftray2 = $leftray2
+@onready var rightray2 = $rightray2
 @onready var wall_jump_timer: Timer = $Timers/Wall_Jump_Timer
 @onready var run_start_timer = $Timers/Run_Start_Timer
 @onready var dying_timer: Timer = $Timers/Dying_Timer
 @onready var collision_shape_2d = $CollisionShape2D
+@onready var jump_sound = $Sounds/jump_sound
+@onready var death_sound = $Sounds/death_sound
+@onready var pause_sound = $Sounds/pause_sound
+@onready var resume_sound = $Sounds/resume_sound
+@onready var wing_flap_sound = $Sounds/wing_flap_sound
+@onready var sprite = $player_sprite
+@onready var wings_sprite = $wings
+@onready var spider_sprite = $spider
+@onready var bulb_sprite = $bulb
+@onready var confused_timer = $Timers/confused_timer
+@onready var strong_sprite = $strong
 
 signal player_died
 signal player_won
@@ -82,10 +96,16 @@ signal player_restart
 
 func _ready():
 	player_state = states.AIRBORNE
+	sprite.play("idle")
+	sprite.pause()
 	coyote_time_left = COYOTE_TIME
 	jump_buffer_time_left = JUMP_BUFFER_TIME
 	player_spawn_point = position
 	collision_shape_2d.disabled = false
+	wings_sprite.play("invisible")
+	bulb_sprite.play("invisible")
+	strong_sprite.play("invisible")
+	spider_sprite.play("invisible")
 	
 func _process(_delta):
 	animate_player()
@@ -108,6 +128,7 @@ func _physics_process(delta):
 					player_restart.emit()
 				if Input.is_action_just_pressed("show_cards"):
 					if get_parent().show_cards(false):
+						resume_sound.play()
 						paused = false
 						velocity = old_velocity
 						if velocity.y > 0:
@@ -115,6 +136,7 @@ func _physics_process(delta):
 			else:
 				if Input.is_action_just_pressed("show_cards"):
 					if get_parent().show_cards(true):
+						pause_sound.play()
 						paused = true
 						old_velocity = velocity
 			if not paused:
@@ -127,7 +149,7 @@ func _physics_process(delta):
 				if lifting:
 					lifted_box.position = position
 				if moved_by_platform and platform:
-					position += platform.get_collider().get_position_changed() * delta
+					position += platform.get_position_changed() * delta
 
 func get_gravity() -> float:
 	if velocity.y > 0:
@@ -171,16 +193,19 @@ func handle_gravity(delta) -> void:
 		coyote_time_left = COYOTE_TIME
 		is_wall_sliding = false
 		can_double_jump = true
+	velocity.y = min(velocity.y, MAX_FALL_GRAVITY)
+	print(velocity.y)
 
 func wall_direction() -> String:
 	#get the direction of the wall touching the player
-	leftray.force_raycast_update()
-	rightray.force_raycast_update()
-	if is_on_wall():
-		if leftray.is_colliding():
-			return "left"
-		elif rightray.is_colliding():
-			return "right"
+	leftray1.force_raycast_update()
+	rightray1.force_raycast_update()
+	leftray2.force_raycast_update()
+	rightray2.force_raycast_update()
+	if leftray1.is_colliding() or leftray2.is_colliding():
+		return "left"
+	elif rightray1.is_colliding() or leftray2.is_colliding():
+		return "right"
 	return "none"
 
 func handle_input_buffer(delta) -> void:
@@ -204,13 +229,13 @@ func handle_inputs() -> void:
 				return
 			if sprite.flip_h == false:
 				#facing right
-				if rightray.is_colliding():
+				if rightray1.is_colliding() or rightray2.is_colliding():
 					return
 				lifted_box.position = position + Vector2(16, -5)
 				position -= Vector2(3, 0)
 			else:
 				#facing left
-				if leftray.is_colliding():
+				if leftray1.is_colliding() or leftray2.is_colliding():
 					return
 				lifted_box.position = position + Vector2(-16, -5)
 				position += Vector2(3, 0)
@@ -223,28 +248,48 @@ func handle_inputs() -> void:
 		elif player_state == states.GROUNDED:
 			if sprite.flip_h == false:
 				#facing the right
-				if rightray.is_colliding():
-					if rightray.get_collider().is_in_group("liftable") and enabled_lift:
-						#player is trying to grab a box
-						lifting = true
-						lifted_box = rightray.get_collider()
-						lifted_box.set_lifted(true)
-					elif rightray.get_collider().is_in_group("lever") and enabled_smart:
+				if rightray1.is_colliding():
+					if rightray1.get_collider().is_in_group("liftable"):
+						if not enabled_lift:
+							confused = true
+							confused_timer.start()
+						else:
+							#player is trying to grab a box
+							strong_sprite.play("visible")
+							lifting = true
+							lifted_box = rightray1.get_collider()
+							lifted_box.set_lifted(true)
+					elif rightray1.get_collider().is_in_group("lever"):
 						#player is trying to toggle a lever
-						rightray.get_collider().toggle()
+						if not enabled_smart:
+							confused = true
+							confused_timer.start()
+						else:
+							bulb_sprite.play("visible")
+							rightray1.get_collider().toggle()
 				interact_buffer_time_left = 0
 			elif sprite.flip_h == true:
 				#facing the left
 				#note: this is repeated code. could not make simpler as it did not work for some reason
-				if leftray.is_colliding():
-					if leftray.get_collider().is_in_group("liftable") and enabled_lift:
-						#player is trying to grab a box
-						lifting = true
-						lifted_box = leftray.get_collider()
-						lifted_box.set_lifted(true)
-					elif leftray.get_collider().is_in_group("lever") and enabled_smart:
+				if leftray1.is_colliding():
+					if leftray1.get_collider().is_in_group("liftable"):
+						if not enabled_lift:
+							confused = true
+							confused_timer.start()
+						else:
+							#player is trying to grab a box
+							strong_sprite.play("visible")
+							lifting = true
+							lifted_box = leftray1.get_collider()
+							lifted_box.set_lifted(true)
+					elif leftray1.get_collider().is_in_group("lever"):
 						#player is trying to toggle a lever
-						leftray.get_collider().toggle()
+						if not enabled_smart:
+							confused = true
+							confused_timer.start()
+						else:
+							bulb_sprite.play("visible")
+							leftray1.get_collider().toggle()
 				interact_buffer_time_left = 0
 				
 		
@@ -253,15 +298,18 @@ func handle_jump() -> void:
 		#jump if player pressed jump within acceptable time and isnt holding a box
 		if player_state == states.GROUNDED or coyote_time_left > 0:
 			#jump if on the ground or recently left ground within acceptable time
+			jump_sound.play()
 			velocity.y = jump_velocity
-		elif is_wall_sliding and enabled_wall_jump:
+		elif (is_wall_sliding or wall_direction() != "none") and enabled_wall_jump:
 			#player is sliding on a wall, jump off of it
+			jump_sound.play()
 			velocity.y = wall_jump_velocity
 			wall_jumping = true
 			wall_jump_timer.start()
 			last_wall_direction = wall_direction()
 		elif can_double_jump and enabled_double_jump:
 			#double jump if able
+			wing_flap_sound.play()
 			velocity.y = DOUBLE_JUMP_VELOCITY
 			can_double_jump = false
 		jump_buffer_time_left = 0
@@ -314,6 +362,7 @@ func die() -> void:
 	if player_state != states.DYING:
 		player_state = states.DYING
 		collision_shape_2d.disabled = true
+		death_sound.play()
 		dying_timer.start()
 	
 func reached_goal() -> void:
@@ -330,6 +379,10 @@ func enable_player_control(value: bool) -> void:
 	control_disabled = not value
 
 func enable_double_jump(value: bool) -> void:
+	if value:
+		wings_sprite.play("visible")
+	else:
+		wings_sprite.play("invisible")
 	enabled_double_jump = value
 
 func enable_wall_jump(value: bool) -> void:	
@@ -353,16 +406,30 @@ func enable_lift(value: bool) -> void:
 			die()
 		else:
 			player_state = states.AIRBORNE
+	if value:
+		strong_sprite.play("visible")
+	else:
+		strong_sprite.play("invisible")
 	enabled_lift = value
 	
 	
 func enable_smart(value: bool) -> void:
+	if value:
+		bulb_sprite.play("visible")
+	else:
+		bulb_sprite.play("invisible")
 	enabled_smart = value
 
 func handle_flip() -> void:
 	if velocity.x > 0:
 		sprite.flip_h = false
+		spider_sprite.position.x = abs(spider_sprite.position.x) * -1
+		bulb_sprite.position.x = abs(bulb_sprite.position.x)
+		strong_sprite.position.x = abs(strong_sprite.position.x)
 	elif velocity.x < 0:
+		spider_sprite.position.x = abs(spider_sprite.position.x)
+		bulb_sprite.position.x = abs(bulb_sprite.position.x) * -1
+		strong_sprite.position.x = abs(strong_sprite.position.x) * -1
 		sprite.flip_h = true
 
 func animate_player() -> void:
@@ -372,6 +439,7 @@ func animate_player() -> void:
 	handle_flip()
 	match player_state:
 		states.GROUNDED:
+			spider_sprite.play("invisible")
 			if velocity.x == 0:
 				if Input.is_action_just_pressed("right"):
 					sprite.flip_h = false
@@ -379,6 +447,8 @@ func animate_player() -> void:
 					sprite.flip_h = true
 				if lifting:
 					sprite.play("idle_box")
+				elif confused:
+					sprite.play("confused")
 				else:
 					sprite.play("idle")
 			else:
@@ -389,6 +459,7 @@ func animate_player() -> void:
 				else:
 					sprite.play("run_start")
 		states.AIRBORNE:
+			spider_sprite.play("invisible")
 			if lifting:
 				sprite.play("fall_box")
 			elif velocity.y < -80:
@@ -399,14 +470,17 @@ func animate_player() -> void:
 				sprite.play("jump_peak")
 		states.WALL_SLIDE:
 			sprite.play("wall_slide")
+			spider_sprite.play("visible")
 			match wall_direction():
 				"left":
 					sprite.flip_h = false
 				"right":
 					sprite.flip_h = true
 		states.DYING:
+			spider_sprite.play("invisible")
 			sprite.play("death")
 		states.WINNING:
+			spider_sprite.play("invisible")
 			sprite.play("winning")
 
 func _on_area_area_entered(area):
@@ -444,3 +518,7 @@ func _on_feet_area_area_exited(area):
 		platform.started_moving.disconnect(on_moving_platform)
 		platform.stopped_moving.disconnect(platform_hop)
 		platform = null
+
+
+func _on_confused_timer_timeout():
+	confused = false
