@@ -90,7 +90,6 @@ animation = &"run"
 frame_progress = 0.413593
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(-5.68434e-14, 14)
 rotation = 1.5708
 scale = Vector2(0.986632, 1.24241)
@@ -102,7 +101,6 @@ scale = Vector2(-0.997759, 0.136985)
 hit_from_inside = true
 
 [node name="killzone" type="Area2D" parent="." groups=["killbox"]]
-visible = false
 collision_layer = 3
 collision_mask = 3
 
@@ -123,10 +121,10 @@ target_position = Vector2(-11, 0)
 position = Vector2(0, -19)
 target_position = Vector2(-8, 0)
 
-[node name="platform_detection_area" type="Area2D" parent="."]
+[node name="platform_detection_area" type="Area2D" parent="." groups=["touches_toggle_blocks"]]
 scale = Vector2(1.12, 1)
-collision_layer = 64
-collision_mask = 64
+collision_layer = 192
+collision_mask = 192
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="platform_detection_area"]
 position = Vector2(0, 15)

@@ -7,18 +7,18 @@ const CAMERA_POSITION_MAP: Vector2 = Vector2(0, 0)
 const CAMERA_POSITION_PLATFORMER: Vector2 = Vector2(0, 0)
 const LEVEL_PREPATH: String = "res://Scenes/levels/level_"
 @onready var music = $Music
-
 @onready var camera = $Camera
 @onready var progress_timer = $Progress/Progress_Timer
 @onready var progress_sprite = $Progress/ProgressSprite
-@export var starting_level_number: int
 
+@export var starting_level_number: int
+@export var total_number_of_levels: int
+var win_screen: PackedScene = preload("res://Scenes/game_end.tscn")
 var song_array = []
 var song_count = 0
-var level_template = preload("res://Scenes/level_template.tscn")
 var current_level_number: int
 var current_level_scene: PackedScene
-var current_level_node
+var current_level_node: Node2D
 var tween: Tween
 var game_state: states 
 enum states {
@@ -48,9 +48,14 @@ func song_ended():
 		song_array.shuffle()
 	song_array[song_count].play()
 	
-func update_current_level_number(new_value: int) -> void:
+func update_current_level_number(new_value: int) -> bool:
 	current_level_number = new_value
-	current_level_scene = load(LEVEL_PREPATH + str(current_level_number) + ".tscn")
+	if current_level_number == total_number_of_levels:
+		get_tree().change_scene_to_packed(win_screen)
+		return false
+	else:
+		current_level_scene = load(LEVEL_PREPATH + str(current_level_number) + ".tscn")
+		return true
 	
 func load_level():
 	#load the current platformer level
@@ -71,15 +76,16 @@ func player_died():
 	
 
 func player_won(player_position: Vector2):
-	#zoom on player celebration
-	change_camera_position(player_position, 0)
-	change_camera_zoom(Vector2(2.5, 2.5), 0.2)
-	await get_tree().create_timer(2.3).timeout
-	#change the level
-	current_level_node.queue_free()
 	#current_level_number += 1
-	update_current_level_number(current_level_number + 1)
-	change_gamestate(states.MAP)
+	if update_current_level_number(current_level_number + 1):
+		#returns TRUE if there is a new level to load
+		#zoom on player celebration
+		change_camera_position(player_position, 0)
+		change_camera_zoom(Vector2(2.5, 2.5), 0.2)
+		await get_tree().create_timer(2.3).timeout
+		#change the level
+		current_level_node.queue_free()
+		change_gamestate(states.MAP)
 
 func kill_player():
 	current_level_node.kill_player()

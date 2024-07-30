@@ -1,82 +1,82 @@
-[gd_scene load_steps=24 format=3 uid="uid://dumtv6icj5r3"]
+[gd_scene load_steps=24 format=3 uid="uid://duqsikaxpbxgg"]
 
-[ext_resource type="Script" path="res://Scripts/main_menu.gd" id="1_yqt63"]
-[ext_resource type="Texture2D" uid="uid://82f88u08x4kx" path="res://Assets/UI/main_screen_head.png" id="2_yxpig"]
-[ext_resource type="FontFile" uid="uid://ctsxcxojptjnq" path="res://Assets/UI/Fonts/wacky-pixels/Wacky Pixels.ttf" id="3_xbxx5"]
+[ext_resource type="Script" path="res://Scripts/main_menu.gd" id="1_5flbx"]
+[ext_resource type="Texture2D" uid="uid://82f88u08x4kx" path="res://Assets/UI/main_screen_head.png" id="1_xmjfj"]
+[ext_resource type="FontFile" uid="uid://ctsxcxojptjnq" path="res://Assets/UI/Fonts/wacky-pixels/Wacky Pixels.ttf" id="2_0q1cn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_frd3k"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(0, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_alw20"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(64, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5u53d"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(128, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwecd"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(192, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_17t5b"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(256, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_luyrv"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(320, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_00173"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(384, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ufhyh"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ht0dm"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(512, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2b6fl"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lvcc7"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(640, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ajch1"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(704, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_c8mi0"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(768, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qyhxs"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(832, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y6vuc"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(896, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fl7qh"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(960, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_04pr3"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(1024, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_38i74"]
-atlas = ExtResource("2_yxpig")
+atlas = ExtResource("1_xmjfj")
 region = Rect2(1088, 0, 64, 64)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_ex443"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_dhy1w"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -162,21 +162,22 @@ animations = [{
 "speed": 12.0
 }]
 
-[sub_resource type="LabelSettings" id="LabelSettings_so1qb"]
-font = ExtResource("3_xbxx5")
+[sub_resource type="LabelSettings" id="LabelSettings_toi54"]
+font = ExtResource("2_0q1cn")
 font_size = 55
 font_color = Color(0.921569, 0.929412, 0.913725, 1)
 outline_size = 12
 outline_color = Color(0.0352941, 0.0392157, 0.0784314, 1)
 
-[node name="main_menu" type="Control"]
+[node name="game_end" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_yqt63")
+script = ExtResource("1_5flbx")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(1.8, 1.8)
-sprite_frames = SubResource("SpriteFrames_ex443")
+sprite_frames = SubResource("SpriteFrames_dhy1w")
+frame_progress = 0.100399
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
@@ -187,23 +188,22 @@ offset_top = -228.0
 offset_right = 158.0
 offset_bottom = -186.0
 scale = Vector2(1.4, 1.52)
-text = "GAME NAME GOES HERE"
-label_settings = SubResource("LabelSettings_so1qb")
+text = "YOU WIN!"
+label_settings = SubResource("LabelSettings_toi54")
 horizontal_alignment = 1
 
 [node name="Label2" type="Label" parent="."]
 layout_mode = 0
-offset_left = -237.0
-offset_top = 83.0
-offset_right = 266.0
-offset_bottom = 125.0
-text = "PRESS SPACE TO PLAY"
-label_settings = SubResource("LabelSettings_so1qb")
+offset_left = -288.0
+offset_top = 78.0
+offset_right = 337.0
+offset_bottom = 120.0
+text = "PRESS SPACE TO PLAY AGAIN"
+label_settings = SubResource("LabelSettings_toi54")
 horizontal_alignment = 1
 
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = -1
-layout_mode = 0
 offset_left = -1943.0
 offset_top = -1112.0
 offset_right = -1903.0

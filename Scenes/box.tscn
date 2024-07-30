@@ -48,9 +48,9 @@ shape = SubResource("RectangleShape2D_q4jn5")
 sprite_frames = SubResource("SpriteFrames_rcdai")
 animation = &"visible"
 
-[node name="area_detection" type="Area2D" parent="."]
-collision_layer = 66
-collision_mask = 66
+[node name="area_detection" type="Area2D" parent="." groups=["touches_toggle_blocks"]]
+collision_layer = 194
+collision_mask = 194
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="area_detection"]
 shape = SubResource("RectangleShape2D_df0ug")

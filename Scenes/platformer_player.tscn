@@ -1259,7 +1259,7 @@ animations = [{
 size = Vector2(13, 30.5202)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d0t0e"]
-size = Vector2(16.25, 31)
+size = Vector2(17.1568, 31.9412)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_pi5dw"]
 radius = 2.0
@@ -1276,48 +1276,45 @@ position = Vector2(0, -2)
 scale = Vector2(1.1, 1.1)
 sprite_frames = SubResource("SpriteFrames_s0uty")
 animation = &"run"
-frame = 6
-frame_progress = 0.143415
+frame_progress = 0.458511
 
 [node name="strong" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -32.9412)
-scale = Vector2(1, 1)
 sprite_frames = SubResource("SpriteFrames_4eo7q")
-animation = &"visible"
-frame = 1
+animation = &"invisible"
 frame_progress = 1.0
 
 [node name="wings" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -5.88235)
 scale = Vector2(0.85, 0.85)
 sprite_frames = SubResource("SpriteFrames_7lqb0")
-animation = &"visible"
+animation = &"invisible"
+frame_progress = 1.0
 
 [node name="spider" type="AnimatedSprite2D" parent="."]
 position = Vector2(11.7647, -20)
 scale = Vector2(0.588235, 0.588235)
 sprite_frames = SubResource("SpriteFrames_hf5xm")
-animation = &"visible"
+animation = &"invisible"
 
 [node name="bulb" type="AnimatedSprite2D" parent="."]
 position = Vector2(-3.52941, -20)
 scale = Vector2(0.588235, 0.588235)
 sprite_frames = SubResource("SpriteFrames_gw8mr")
-animation = &"visible"
+animation = &"invisible"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0.5, 2.74757)
 scale = Vector2(1.08, 1.03194)
 shape = SubResource("RectangleShape2D_3gw28")
 
-[node name="Area" type="Area2D" parent="." groups=["player"]]
-visible = false
-collision_layer = 2
-collision_mask = 2
+[node name="Area" type="Area2D" parent="." groups=["player", "touches_toggle_blocks"]]
+collision_layer = 130
+collision_mask = 130
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area"]
-position = Vector2(0.5, 3.5)
-scale = Vector2(0.800001, 1)
+position = Vector2(0.207613, 3.02941)
+scale = Vector2(0.84706, 1)
 shape = SubResource("RectangleShape2D_d0t0e")
 
 [node name="Timers" type="Node" parent="."]
@@ -1345,7 +1342,7 @@ collision_mask = 19
 hit_from_inside = true
 
 [node name="leftray2" type="RayCast2D" parent="."]
-position = Vector2(0, 1.17647)
+position = Vector2(0, -1.17647)
 target_position = Vector2(-10, 0)
 collision_mask = 19
 hit_from_inside = true
@@ -1357,7 +1354,7 @@ collision_mask = 19
 hit_from_inside = true
 
 [node name="rightray2" type="RayCast2D" parent="."]
-position = Vector2(0, 1.17647)
+position = Vector2(0, -1.17647)
 target_position = Vector2(10, 0)
 collision_mask = 19
 hit_from_inside = true
@@ -1381,7 +1378,8 @@ volume_db = -20.0
 
 [node name="death_sound" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource("12_m44q8")
-volume_db = -20.0
+volume_db = -15.0
+pitch_scale = 1.3
 
 [node name="pause_sound" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource("13_ediu7")

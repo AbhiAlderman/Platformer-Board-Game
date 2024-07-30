@@ -245,7 +245,7 @@ scale = Vector2(25.2274, 14.0897)
 color = Color(0.341176, 0.447059, 0.466667, 1)
 
 [node name="Platformer_Player" parent="." instance=ExtResource("7_iyko7")]
-position = Vector2(-99, -167)
+position = Vector2(-330, 175)
 
 [node name="Boxes" type="Node" parent="."]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://dynfyew20a8me"]
+[gd_scene load_steps=25 format=3 uid="uid://dynfyew20a8me"]
 
 [ext_resource type="Script" path="res://Scripts/toggle_block.gd" id="1_4g6bm"]
 [ext_resource type="Texture2D" uid="uid://dqpotbcrgsr2k" path="res://Assets/level/interactables/button_block-Sheet.png" id="1_mkncf"]
@@ -158,6 +158,9 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1cnr3"]
 size = Vector2(16, 16)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jfsrd"]
+size = Vector2(16, 16)
+
 [node name="toggle_block" type="Node2D"]
 z_index = 4
 z_as_relative = false
@@ -174,3 +177,13 @@ visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 shape = SubResource("RectangleShape2D_1cnr3")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 128
+collision_mask = 128
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_jfsrd")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Area2D" to="." method="_on_area_2d_area_exited"]

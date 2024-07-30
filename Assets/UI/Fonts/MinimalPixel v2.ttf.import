@@ -1,0 +1,33 @@
+[remap]
+
+importer="font_data_dynamic"
+type="FontFile"
+uid="uid://b0ov6asnk0nmd"
+path="res://.godot/imported/MinimalPixel v2.ttf-7b0dd5f0927873bf6a2bd5acc4f83999.fontdata"
+
+[deps]
+
+source_file="res://Assets/UI/Fonts/MinimalPixel v2.ttf"
+dest_files=["res://.godot/imported/MinimalPixel v2.ttf-7b0dd5f0927873bf6a2bd5acc4f83999.fontdata"]
+
+[params]
+
+Rendering=null
+antialiasing=1
+generate_mipmaps=false
+multichannel_signed_distance_field=false
+msdf_pixel_range=8
+msdf_size=48
+allow_system_fallback=true
+force_autohinter=false
+hinting=1
+subpixel_positioning=1
+oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
+preload=[]
+language_support={}
+script_support={}
+opentype_features={}

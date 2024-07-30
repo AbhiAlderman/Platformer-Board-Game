@@ -194,7 +194,6 @@ func handle_gravity(delta) -> void:
 		is_wall_sliding = false
 		can_double_jump = true
 	velocity.y = min(velocity.y, MAX_FALL_GRAVITY)
-	print(velocity.y)
 
 func wall_direction() -> String:
 	#get the direction of the wall touching the player

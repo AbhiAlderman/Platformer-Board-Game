@@ -95,6 +95,7 @@ offset_top = -57.0
 offset_right = -26.0
 offset_bottom = -49.0
 scale = Vector2(8.5548, 14.1347)
+mouse_filter = 2
 
 [node name="sprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_gcgo2")

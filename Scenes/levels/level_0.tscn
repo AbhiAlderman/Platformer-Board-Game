@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://g3f7fehlxul"]
+[gd_scene load_steps=13 format=3 uid="uid://g3f7fehlxul"]
 
 [ext_resource type="Script" path="res://Scripts/level_template.gd" id="1_mibct"]
 [ext_resource type="TileSet" uid="uid://dxdh1j4y2hswa" path="res://Assets/Tileset/testing.tres" id="2_gmo85"]
 [ext_resource type="Texture2D" uid="uid://boyor34ca4mar" path="res://Assets/level/spike.png" id="3_sihce"]
+[ext_resource type="FontFile" uid="uid://ctsxcxojptjnq" path="res://Assets/UI/Fonts/wacky-pixels/Wacky Pixels.ttf" id="7_heop8"]
 [ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="7_txxrm"]
 [ext_resource type="PackedScene" uid="uid://dqciwxg0g6ov4" path="res://Scenes/goal.tscn" id="11_ydnru"]
 
@@ -83,6 +84,13 @@ sources/0 = SubResource("TileSetAtlasSource_4ewyu")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vhwcq"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_fv5w3"]
+font = ExtResource("7_heop8")
+font_size = 21
+font_color = Color(0.921569, 0.929412, 0.913725, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
 [node name="level_template" type="Node2D"]
 z_index = 1
 script = ExtResource("1_mibct")
@@ -135,3 +143,18 @@ position = Vector2(-334, 164)
 position = Vector2(326, 165)
 
 [node name="Creatures" type="Node" parent="."]
+
+[node name="Label" type="Node" parent="."]
+
+[node name="Label" type="Label" parent="Label"]
+z_index = 3
+texture_filter = 1
+offset_left = -149.0
+offset_top = -30.0
+offset_right = 142.0
+offset_bottom = -7.0
+text = "USE WASD OR ARROW KEYS TO MOVE
+
+USE SPACE OR X TO JUMP"
+label_settings = SubResource("LabelSettings_fv5w3")
+horizontal_alignment = 1
