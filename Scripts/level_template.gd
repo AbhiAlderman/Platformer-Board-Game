@@ -33,7 +33,7 @@ const SLOT_POS_X_RIGHTMOST: Vector2 = Vector2(SLOT_X_GAP * 2, SLOT_POS_Y)
 @export var buffs: PackedStringArray
 @export var debuffs: PackedStringArray
 @export var num_card_slots: int
-
+@export var traps_enabled: bool
 var card_scene = preload("res://Scenes/card.tscn")
 var card_slot_scene = preload("res://Scenes/slot.tscn")
 var num_player_cards: int
@@ -61,6 +61,8 @@ func _ready():
 	load_level_interactables()
 	await get_tree().create_timer(0.235).timeout
 	enable_player_control(true)
+	platformer_player.enable_traps(traps_enabled)
+	more_traps.visible = traps_enabled
 
 func load_card_slots():
 	var start_x: float 
@@ -292,10 +294,6 @@ func enable_wall_jump(value: bool) -> void:
 func enable_glide(value: bool) -> void:
 	platformer_player.enable_glide(value)
 
-func enable_traps(value: bool) -> void:
-	platformer_player.enable_traps(value)
-	more_traps.visible = value
-
 func enable_lift(value: bool) -> void:
 	platformer_player.enable_lift(value)
 	
@@ -374,8 +372,8 @@ func enable_effect(effect_name: String, value: bool) -> void :
 					enable_glide(value)
 				"lift":
 					enable_lift(value)
-				"spike":
-					enable_traps(value)
+				#"spike":
+					#enable_traps(value)
 				"smart":
 					enable_smart(value)
 				_:

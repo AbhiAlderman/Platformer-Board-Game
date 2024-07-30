@@ -1,6 +1,6 @@
 [gd_scene load_steps=24 format=3 uid="uid://duqsikaxpbxgg"]
 
-[ext_resource type="Script" path="res://Scripts/main_menu.gd" id="1_5flbx"]
+[ext_resource type="Script" path="res://Scripts/game_end.gd" id="1_mmr8w"]
 [ext_resource type="Texture2D" uid="uid://82f88u08x4kx" path="res://Assets/UI/main_screen_head.png" id="1_xmjfj"]
 [ext_resource type="FontFile" uid="uid://ctsxcxojptjnq" path="res://Assets/UI/Fonts/wacky-pixels/Wacky Pixels.ttf" id="2_0q1cn"]
 
@@ -172,7 +172,7 @@ outline_color = Color(0.0352941, 0.0392157, 0.0784314, 1)
 [node name="game_end" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_5flbx")
+script = ExtResource("1_mmr8w")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(1.8, 1.8)
@@ -192,18 +192,9 @@ text = "YOU WIN!"
 label_settings = SubResource("LabelSettings_toi54")
 horizontal_alignment = 1
 
-[node name="Label2" type="Label" parent="."]
-layout_mode = 0
-offset_left = -288.0
-offset_top = 78.0
-offset_right = 337.0
-offset_bottom = 120.0
-text = "PRESS SPACE TO PLAY AGAIN"
-label_settings = SubResource("LabelSettings_toi54")
-horizontal_alignment = 1
-
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = -1
+layout_mode = 0
 offset_left = -1943.0
 offset_top = -1112.0
 offset_right = -1903.0

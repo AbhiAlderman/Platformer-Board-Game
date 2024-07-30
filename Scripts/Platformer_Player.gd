@@ -244,6 +244,8 @@ func handle_inputs() -> void:
 			lifted_box = null
 			player_state = states.AIRBORNE
 			interact_buffer_time_left = 0
+			if enabled_double_jump:
+				wings_sprite.play("visible")
 		elif player_state == states.GROUNDED:
 			if sprite.flip_h == false:
 				#facing the right
@@ -258,6 +260,7 @@ func handle_inputs() -> void:
 							lifting = true
 							lifted_box = rightray1.get_collider()
 							lifted_box.set_lifted(true)
+							wings_sprite.play("invisible")
 					elif rightray1.get_collider().is_in_group("lever"):
 						#player is trying to toggle a lever
 						if not enabled_smart:
@@ -281,6 +284,7 @@ func handle_inputs() -> void:
 							lifting = true
 							lifted_box = leftray1.get_collider()
 							lifted_box.set_lifted(true)
+							wings_sprite.play("invisible")
 					elif leftray1.get_collider().is_in_group("lever"):
 						#player is trying to toggle a lever
 						if not enabled_smart:
@@ -521,3 +525,8 @@ func _on_feet_area_area_exited(area):
 
 func _on_confused_timer_timeout():
 	confused = false
+
+
+func _on_area_body_entered(body):
+	if body.is_in_group("trap") and enabled_traps:
+		die()

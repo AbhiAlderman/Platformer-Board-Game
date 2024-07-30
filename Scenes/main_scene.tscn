@@ -67,7 +67,8 @@ animations = [{
 
 [node name="Main_Scene" type="Node2D"]
 script = ExtResource("1_8wvd0")
-total_number_of_levels = 8
+starting_level_number = 9
+total_number_of_levels = 10
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
