@@ -5,14 +5,19 @@ const CAMERA_ZOOM_PLATFORMER: Vector2 = Vector2(1.7, 1.7)
 const CAMERA_ZOOM_CARDS: Vector2 = Vector2(0.48, 0.48)
 const CAMERA_POSITION_MAP: Vector2 = Vector2(0, 0)
 const CAMERA_POSITION_PLATFORMER: Vector2 = Vector2(0, 0)
+const CHARACTER_START_POS: Vector2 = Vector2(-240, -5)
+const CHARACTER_MOVE_SPEED: float = 230
+const CHARACTER_END_POS: Vector2 = Vector2(270, -5)
 const LEVEL_PREPATH: String = "res://Scenes/levels/level_"
+
 @onready var music = $Music
 @onready var camera = $Camera
-@onready var progress_timer = $Progress/Progress_Timer
 @onready var progress_sprite = $Progress/ProgressSprite
+@onready var character_sprite = $Progress/CharacterSprite
 
 @export var starting_level_number: int
 @export var total_number_of_levels: int
+
 var win_screen: PackedScene = preload("res://Scenes/game_end.tscn")
 var song_array = []
 var song_count = 0
@@ -21,6 +26,8 @@ var current_level_scene: PackedScene
 var current_level_node: Node2D
 var tween: Tween
 var game_state: states 
+var scroll_open: bool
+var character_moving: bool
 enum states {
 	MAP, #the worldmap the player is moving through to progress
 	PLATFORMER, #the actual platformer game
@@ -38,8 +45,16 @@ func _ready():
 	song_array.shuffle()
 	song_array[0].play()
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
+func _process(delta):
+	if character_moving:
+		character_sprite.position.x += CHARACTER_MOVE_SPEED * delta
+		if character_sprite.position.x >= CHARACTER_END_POS.x:
+			#character made it to flag
+			character_moving = false
+			character_sprite.play("invisible")
+			progress_sprite.play("invisible")
+			load_level()
+			change_gamestate(states.PLATFORMER)
 
 func song_ended():
 	song_count += 1
@@ -107,11 +122,14 @@ func change_gamestate(state: states):
 	tween = create_tween()
 	match state:
 		states.MAP:
+			scroll_open = false
+			character_moving = false
 			game_state = states.MAP
+			character_sprite.position = CHARACTER_START_POS
+			character_sprite.play("invisible")
 			change_camera_position(CAMERA_POSITION_MAP, 0.05)
 			change_camera_zoom(CAMERA_ZOOM_MAP, 0.2)
-			progress_timer.start()
-			progress_sprite.play("visible")
+			progress_sprite.play("open")
 		states.PLATFORMER:
 			progress_sprite.play("invisible")
 			game_state = states.PLATFORMER
@@ -125,6 +143,10 @@ func change_gamestate(state: states):
 			print("invalid game state")
 			return
 
-func _on_progress_timer_timeout():
-	load_level()
-	change_gamestate(states.PLATFORMER)
+func _on_progress_sprite_animation_finished():
+	if not scroll_open:
+		scroll_open = true
+		progress_sprite.play("visible")
+		character_sprite.position = CHARACTER_START_POS
+		character_sprite.play("visible")
+		character_moving = true

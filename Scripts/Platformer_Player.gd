@@ -126,6 +126,8 @@ func _physics_process(delta):
 			if paused:
 				if Input.is_action_just_pressed("restart"):
 					player_restart.emit()
+				if Input.is_action_just_pressed("skip"):
+					player_won.emit()
 				if Input.is_action_just_pressed("show_cards"):
 					if get_parent().show_cards(false):
 						resume_sound.play()
@@ -178,12 +180,13 @@ func handle_gravity(delta) -> void:
 			#make player jump higher when holding jump
 			jump_time += delta
 			velocity.y += JUMP_HOLD_GRAVITY * delta
-		elif Input.is_action_pressed("jump") and enabled_glide and velocity.y >= 0:
-			#if glide is enabled, make player glide while falling and holding jump
-			velocity.y = GLIDE_VELOCITY
 		else:
-			#apply gravity normally
-			velocity.y += get_gravity() * delta
+			if enabled_glide and velocity.y >= 0:
+				#if glide is enabled, make player glide while falling
+				velocity.y = GLIDE_VELOCITY
+			else:
+				#apply gravity normally
+				velocity.y += get_gravity() * delta
 		is_wall_sliding = false
 		player_state = states.AIRBORNE
 	else:

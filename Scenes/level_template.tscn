@@ -1,8 +1,7 @@
-[gd_scene load_steps=15 format=3 uid="uid://bgosetwp6sg36"]
+[gd_scene load_steps=13 format=3 uid="uid://bgosetwp6sg36"]
 
 [ext_resource type="Script" path="res://Scripts/level_template.gd" id="1_f7ox8"]
 [ext_resource type="PackedScene" uid="uid://yhfgqx38dv8u" path="res://Scenes/platformer_player.tscn" id="2_rii10"]
-[ext_resource type="Texture2D" uid="uid://boyor34ca4mar" path="res://Assets/level/spike.png" id="3_jh1d5"]
 [ext_resource type="TileSet" uid="uid://dxdh1j4y2hswa" path="res://Assets/Tileset/testing.tres" id="4_o7ja7"]
 [ext_resource type="PackedScene" uid="uid://dbbov6pfmwlkq" path="res://Scenes/pressure_plate.tscn" id="5_guot2"]
 [ext_resource type="PackedScene" uid="uid://dynfyew20a8me" path="res://Scenes/toggle_block.tscn" id="6_siexo"]
@@ -12,17 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://dqciwxg0g6ov4" path="res://Scenes/goal.tscn" id="11_to56b"]
 [ext_resource type="PackedScene" uid="uid://b1gjaf3odv74p" path="res://Scenes/creature.tscn" id="12_q8kd7"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4ewyu"]
-texture = ExtResource("3_jh1d5")
-0:0/0 = 0
-0:0/0/physics_layer_0/linear_velocity = Vector2(0, 0)
-0:0/0/physics_layer_0/angular_velocity = 0.0
-0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(0, -6.625, 8, 8, -8, 8)
-
 [sub_resource type="TileSet" id="TileSet_ocy3u"]
 physics_layer_0/collision_layer = 2
 physics_layer_0/collision_mask = 2
-sources/0 = SubResource("TileSetAtlasSource_4ewyu")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vhwcq"]
 
